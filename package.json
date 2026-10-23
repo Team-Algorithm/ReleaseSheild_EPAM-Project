@@ -1,0 +1,19 @@
+{
+  "name": "releaseshield-monorepo",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "typecheck": "tsc --build",
+    "build": "tsc --build",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.2",
+    "tsx": "^4.23.15",
+    "vitest": "^3.2.7"
+  }
+}

@@ -1,7 +1,19 @@
 import React from 'react';
 import { Box, Text } from 'ink';
 
-export function MainArea() {
+export interface MainAreaProps {
+  lastCommandOutput?: React.ReactNode;
+}
+
+export function MainArea({ lastCommandOutput }: MainAreaProps) {
+  if (lastCommandOutput) {
+    return (
+      <Box flexDirection="column" marginY={1}>
+        {lastCommandOutput}
+      </Box>
+    );
+  }
+
   const toolColWidth = 14;
   const numColWidth = 9;
   const dividerWidth = toolColWidth + numColWidth * 4;

@@ -49,6 +49,18 @@ npm run build
 npm start
 ```
 
+#### Option C: Global Command Mode (Run `releaseshield` directly from anywhere)
+If you want to type `releaseshield` directly in your terminal at any time without `npm run dev`:
+
+```bash
+# Build and link the package once:
+npm run build
+cd packages/cli && npm link
+
+# Now launch it anytime from any folder:
+releaseshield
+```
+
 ---
 
 ## 🎮 Inside the Interactive CLI

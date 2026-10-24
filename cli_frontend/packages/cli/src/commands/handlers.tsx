@@ -2,9 +2,11 @@ import React from 'react';
 import { Box, Text } from 'ink';
 import type { CommandRegistry } from './registry.js';
 import type { ToolName, ScanSummary } from '@releaseshield/core';
+import { FAKE_FINDINGS } from '@releaseshield/core';
 import { HelpScreen } from '../screens/HelpScreen.js';
 import { ScanScreen } from '../screens/ScanScreen.js';
 import { ResultsScreen } from '../screens/ResultsScreen.js';
+import { FindingsScreen } from '../screens/FindingsScreen.js';
 
 declare const process: {
   exit?: (code?: number) => void;
@@ -189,16 +191,33 @@ export function registerDefaultCommands(
     }
   });
 
-  // /findings stub (to be fully replaced in Step 8)
+  // /findings — list security findings with optional filters & pagination
   registry.register({
     name: 'findings',
     description: 'List security findings with optional filters',
-    usage: '/findings [--severity high|medium|low] [--tool <tool>]',
-    handler: () => {
+    usage: '/findings [--severity high|medium|low] [--tool trivy|semgrep|gitleaks]',
+    handler: (cmd) => {
+      let filtered = [...FAKE_FINDINGS];
+
+      // Filter by severity if passed
+      const sevFlag = cmd.flags['severity'] ?? cmd.flags['sev'];
+      if (typeof sevFlag === 'string') {
+        const targetSev = sevFlag.toLowerCase();
+        filtered = filtered.filter((f) => f.severity.toLowerCase() === targetSev);
+      }
+
+      // Filter by tool if passed
+      const toolFlag = cmd.flags['tool'] ?? cmd.flags['tools'];
+      if (typeof toolFlag === 'string') {
+        const targetTool = toolFlag.toLowerCase();
+        filtered = filtered.filter((f) => f.tool.toLowerCase() === targetTool);
+      }
+
       ctx.setOutput(
-        <Box flexDirection="column">
-          <Text dimColor>No scans yet. Run /scan first.</Text>
-        </Box>
+        <FindingsScreen
+          findings={filtered}
+          onPromptDisable={ctx.setPromptDisabled}
+        />
       );
     }
   });

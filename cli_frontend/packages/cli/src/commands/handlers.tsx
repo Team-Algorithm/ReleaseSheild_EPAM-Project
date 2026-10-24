@@ -3,6 +3,10 @@ import { Box, Text } from 'ink';
 import type { CommandRegistry } from './registry.js';
 import { HelpScreen } from '../screens/HelpScreen.js';
 
+declare const process: {
+  exit?: (code?: number) => void;
+};
+
 export interface CommandHandlerContext {
   registry: CommandRegistry;
   setOutput: (node: React.ReactNode | null) => void;
@@ -46,6 +50,7 @@ export function registerDefaultCommands(
       );
       setTimeout(() => {
         ctx.exitApp();
+        process.exit?.(0);
       }, 50);
     }
   });

@@ -1,5 +1,6 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import { Box, Text, useApp } from 'ink';
+import type { ScanSummary } from '@releaseshield/core';
 import { Header } from './components/Header.js';
 import { StatusBar } from './components/StatusBar.js';
 import { MainArea } from './components/MainArea.js';
@@ -13,16 +14,32 @@ import { registerDefaultCommands } from './commands/handlers.js';
 export function App() {
   const { exit } = useApp();
   const [outputNode, setOutputNode] = useState<React.ReactNode | null>(null);
+  const [promptDisabled, setPromptDisabled] = useState(false);
+  const [lastScan, setLastScan] = useState<string>('none');
+  const [lastSummary, setLastSummary] = useState<ScanSummary | null>(null);
+  const [activeTools, setActiveTools] = useState<string>('trivy, semgrep, gitleaks');
+
+  const handleScanComplete = useCallback((summary: ScanSummary) => {
+    setLastSummary(summary);
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('en-US', { hour12: false });
+    setLastScan(timeStr);
+    const toolNames = summary.tools.map((t) => t.tool).join(', ');
+    setActiveTools(toolNames);
+  }, []);
 
   const registry = useMemo(() => {
     const reg = new CommandRegistry();
     registerDefaultCommands(reg, {
       registry: reg,
       setOutput: (node) => setOutputNode(node),
-      exitApp: () => exit()
+      exitApp: () => exit(),
+      setPromptDisabled,
+      onScanComplete: handleScanComplete,
+      getLastSummary: () => lastSummary
     });
     return reg;
-  }, [exit]);
+  }, [exit, handleScanComplete, lastSummary]);
 
   const handleCommandSubmit = (input: string) => {
     const parsed = parseCommand(input);
@@ -50,11 +67,11 @@ export function App() {
     <Box flexDirection="column" paddingX={1} width="100%">
       <Header />
       <Divider />
-      <StatusBar repo="./NodeGoat" tools="trivy, semgrep, gitleaks" lastScan="none" />
+      <StatusBar repo="./NodeGoat" tools={activeTools} lastScan={lastScan} />
       <Divider />
       <MainArea lastCommandOutput={outputNode} />
       <Divider />
-      <PromptBox onSubmit={handleCommandSubmit} />
+      <PromptBox onSubmit={handleCommandSubmit} isDisabled={promptDisabled} />
       <HintLine />
     </Box>
   );

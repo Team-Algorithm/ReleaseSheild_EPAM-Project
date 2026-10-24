@@ -1,7 +1,9 @@
 import React from 'react';
 import { Box, Text } from 'ink';
 import type { CommandRegistry } from './registry.js';
+import type { ToolName, ScanSummary } from '@releaseshield/core';
 import { HelpScreen } from '../screens/HelpScreen.js';
+import { ScanScreen } from '../screens/ScanScreen.js';
 
 declare const process: {
   exit?: (code?: number) => void;
@@ -11,6 +13,9 @@ export interface CommandHandlerContext {
   registry: CommandRegistry;
   setOutput: (node: React.ReactNode | null) => void;
   exitApp: () => void;
+  setPromptDisabled: (disabled: boolean) => void;
+  onScanComplete: (summary: ScanSummary) => void;
+  getLastSummary: () => ScanSummary | null;
 }
 
 export function registerDefaultCommands(
@@ -108,17 +113,58 @@ export function registerDefaultCommands(
     }
   });
 
-  // /scan stub (to be fully replaced in Step 6)
+  // /scan — full interactive flow
   registry.register({
     name: 'scan',
     description: 'Run a security scan with selected tools',
     usage: '/scan [--tools trivy,semgrep] [--fail <tool>]',
     handler: (cmd) => {
+      // Parse --tools flag
+      let preselectedTools: ToolName[] | undefined;
+      const toolsFlag = cmd.flags['tools'];
+      if (toolsFlag) {
+        const toolsList = Array.isArray(toolsFlag) ? toolsFlag : [toolsFlag];
+        const validTools: ToolName[] = [];
+        for (const t of toolsList) {
+          if (t === 'trivy' || t === 'semgrep' || t === 'gitleaks') {
+            validTools.push(t);
+          }
+        }
+        if (validTools.length > 0) {
+          preselectedTools = validTools;
+        }
+      }
+
+      // Parse --fail flag
+      let failTool: ToolName | undefined;
+      const failFlag = cmd.flags['fail'];
+      if (typeof failFlag === 'string') {
+        if (
+          failFlag === 'trivy' ||
+          failFlag === 'semgrep' ||
+          failFlag === 'gitleaks'
+        ) {
+          failTool = failFlag;
+        }
+      }
+
       ctx.setOutput(
-        <Box flexDirection="column">
-          <Text color="green">Scan triggered: /{cmd.raw}</Text>
-          <Text dimColor>Full interactive scan checklist and flow available in Step 6.</Text>
-        </Box>
+        <ScanScreen
+          preselectedTools={preselectedTools}
+          failTool={failTool}
+          onComplete={(summary) => {
+            ctx.onScanComplete(summary);
+          }}
+          onCancel={() => {
+            ctx.setPromptDisabled(false);
+            ctx.setOutput(
+              <Box flexDirection="column">
+                <Text dimColor>Scan cancelled.</Text>
+              </Box>
+            );
+          }}
+          onPromptDisable={ctx.setPromptDisabled}
+        />
       );
     }
   });
@@ -145,7 +191,7 @@ export function registerDefaultCommands(
     handler: () => {
       ctx.setOutput(
         <Box flexDirection="column">
-          <Text dimColor>Findings view available in Step 8.</Text>
+          <Text dimColor>No scans yet. Run /scan first.</Text>
         </Box>
       );
     }

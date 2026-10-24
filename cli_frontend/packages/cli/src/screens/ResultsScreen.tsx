@@ -1,13 +1,35 @@
 import React from 'react';
-import { Box, Text } from 'ink';
+import { Box, Text, useStdout } from 'ink';
 import type { ScanSummary } from '@releaseshield/core';
 
 export interface ResultsScreenProps {
   summary: ScanSummary;
+  columns?: number;
 }
 
-export function ResultsScreen({ summary }: ResultsScreenProps) {
-  const toolColWidth = 11;
+export function ResultsScreen({ summary, columns: propColumns }: ResultsScreenProps) {
+  const { stdout } = useStdout();
+  const terminalWidth =
+    propColumns ??
+    (typeof process !== 'undefined' && process.env.COLUMNS
+      ? Number(process.env.COLUMNS)
+      : undefined) ??
+    (stdout as any)?.columns ??
+    process.stdout?.columns ??
+    80;
+  const isNarrow = terminalWidth < 80;
+
+  const isNoColor = Boolean(
+    typeof process !== 'undefined' &&
+      process.env.NO_COLOR !== undefined &&
+      process.env.NO_COLOR !== ''
+  );
+
+  const safeRed = isNoColor ? undefined : 'red';
+  const safeYellow = isNoColor ? undefined : 'yellow';
+  const safeGreen = isNoColor ? undefined : 'green';
+
+  const toolColWidth = isNarrow ? 12 : 11;
   const highColWidth = 6;
   const medColWidth = 8;
   const lowColWidth = 5;
@@ -25,15 +47,15 @@ export function ResultsScreen({ summary }: ResultsScreenProps) {
               <Text>{label.padEnd(toolColWidth)}</Text>
               {toolResult.status === 'done' ? (
                 <>
-                  <Text color="green">{'done'.padEnd(9)}</Text>
+                  <Text color={safeGreen}>{'done'.padEnd(9)}</Text>
                   <Text>
                     {toolResult.durationSec.toFixed(1).padStart(5)}s
                   </Text>
                 </>
               ) : (
                 <>
-                  <Text color="red">{'failed'.padEnd(9)}</Text>
-                  <Text color="red">
+                  <Text color={safeRed}>{'failed'.padEnd(9)}</Text>
+                  <Text color={safeRed}>
                     {toolResult.error ?? 'unknown error'}
                   </Text>
                 </>
@@ -46,13 +68,21 @@ export function ResultsScreen({ summary }: ResultsScreenProps) {
       {/* Results Table */}
       <Box flexDirection="column">
         {/* Table Header */}
-        <Box flexDirection="row">
-          <Text>{'Tool'.padEnd(toolColWidth)}</Text>
-          <Text color="red">{'High'.padStart(highColWidth)}</Text>
-          <Text color="yellow">{'Medium'.padStart(medColWidth)}</Text>
-          <Text>{'Low'.padStart(lowColWidth)}</Text>
-          <Text>{'Total'.padStart(totalColWidth)}</Text>
-        </Box>
+        {isNarrow ? (
+          <Box flexDirection="row">
+            <Text>{'Tool'.padEnd(toolColWidth)}</Text>
+            <Text color={safeRed}>{'High'.padStart(highColWidth)}</Text>
+            <Text>{'Total'.padStart(totalColWidth)}</Text>
+          </Box>
+        ) : (
+          <Box flexDirection="row">
+            <Text>{'Tool'.padEnd(toolColWidth)}</Text>
+            <Text color={safeRed}>{'High'.padStart(highColWidth)}</Text>
+            <Text color={safeYellow}>{'Medium'.padStart(medColWidth)}</Text>
+            <Text>{'Low'.padStart(lowColWidth)}</Text>
+            <Text>{'Total'.padStart(totalColWidth)}</Text>
+          </Box>
+        )}
 
         {/* Tool rows (for successful tools) */}
         {summary.tools
@@ -65,13 +95,21 @@ export function ResultsScreen({ summary }: ResultsScreenProps) {
               toolResult.counts.high +
               toolResult.counts.medium +
               toolResult.counts.low;
-            return (
+            return isNarrow ? (
               <Box key={toolResult.tool} flexDirection="row">
                 <Text>{label.padEnd(toolColWidth)}</Text>
-                <Text color="red">
+                <Text color={safeRed}>
                   {String(toolResult.counts.high).padStart(highColWidth)}
                 </Text>
-                <Text color="yellow">
+                <Text>{String(total).padStart(totalColWidth)}</Text>
+              </Box>
+            ) : (
+              <Box key={toolResult.tool} flexDirection="row">
+                <Text>{label.padEnd(toolColWidth)}</Text>
+                <Text color={safeRed}>
+                  {String(toolResult.counts.high).padStart(highColWidth)}
+                </Text>
+                <Text color={safeYellow}>
                   {String(toolResult.counts.medium).padStart(medColWidth)}
                 </Text>
                 <Text>
@@ -88,13 +126,22 @@ export function ResultsScreen({ summary }: ResultsScreenProps) {
             summary.totalCounts.high +
             summary.totalCounts.medium +
             summary.totalCounts.low;
-          return (
+          return isNarrow ? (
             <Box flexDirection="row">
               <Text bold>{'Total'.padEnd(toolColWidth)}</Text>
-              <Text bold color="red">
+              <Text bold color={safeRed}>
                 {String(summary.totalCounts.high).padStart(highColWidth)}
               </Text>
-              <Text bold color="yellow">
+              <Text bold>{String(grandTotal).padStart(totalColWidth)}</Text>
+              <Text>   total time {Math.round(summary.totalDurationSec)}s</Text>
+            </Box>
+          ) : (
+            <Box flexDirection="row">
+              <Text bold>{'Total'.padEnd(toolColWidth)}</Text>
+              <Text bold color={safeRed}>
+                {String(summary.totalCounts.high).padStart(highColWidth)}
+              </Text>
+              <Text bold color={safeYellow}>
                 {String(summary.totalCounts.medium).padStart(medColWidth)}
               </Text>
               <Text bold>
@@ -109,7 +156,7 @@ export function ResultsScreen({ summary }: ResultsScreenProps) {
 
       {/* Saved SARIF footer */}
       <Box marginTop={1}>
-        <Text dimColor>Saved: {summary.savedPath}</Text>
+        <Text dimColor={!isNoColor}>Saved: {summary.savedPath}</Text>
       </Box>
     </Box>
   );

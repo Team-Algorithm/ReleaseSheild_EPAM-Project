@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useCallback } from 'react';
-import { Box, Text, useApp } from 'ink';
+import { Box, Text, useApp, useInput } from 'ink';
 import type { ScanSummary } from '@releaseshield/core';
 import { Header } from './components/Header.js';
 import { StatusBar } from './components/StatusBar.js';
@@ -13,6 +13,15 @@ import { registerDefaultCommands } from './commands/handlers.js';
 
 export function App() {
   const { exit } = useApp();
+
+  useInput((input, key) => {
+    if (key.ctrl && input === 'c') {
+      exit();
+      if (typeof process !== 'undefined' && process.exit) {
+        process.exit(0);
+      }
+    }
+  });
   const [outputNode, setOutputNode] = useState<React.ReactNode | null>(null);
   const [promptDisabled, setPromptDisabled] = useState(false);
   const [lastScan, setLastScan] = useState<string>('none');

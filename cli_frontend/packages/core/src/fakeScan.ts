@@ -63,6 +63,10 @@ export async function runScan(
       let elapsedSec = 0;
 
       const timer = setInterval(() => {
+        if (options?.abortSignal?.aborted) {
+          clearInterval(timer);
+          return;
+        }
         // If this tool is configured to fail
         if (willFail) {
           clearInterval(timer);
@@ -111,6 +115,31 @@ export async function runScan(
           });
         }
       }, tickIntervalMs);
+
+      if (options?.abortSignal) {
+        if (options.abortSignal.aborted) {
+          clearInterval(timer);
+          resolve({
+            tool,
+            status: 'failed',
+            durationSec: 0,
+            counts: { high: 0, medium: 0, low: 0 },
+            error: 'Scan cancelled'
+          });
+          return;
+        }
+
+        options.abortSignal.addEventListener('abort', () => {
+          clearInterval(timer);
+          resolve({
+            tool,
+            status: 'failed',
+            durationSec: elapsedSec,
+            counts: { high: 0, medium: 0, low: 0 },
+            error: 'Scan cancelled'
+          });
+        });
+      }
     });
   });
 

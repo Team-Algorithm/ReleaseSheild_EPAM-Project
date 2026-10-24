@@ -37,6 +37,7 @@ export interface ScanSummary {
 export interface ScanOptions {
   failTool?: ToolName;
   speedMultiplier?: number;
+  abortSignal?: AbortSignal;
 }
 
 export interface ToolUpdate {

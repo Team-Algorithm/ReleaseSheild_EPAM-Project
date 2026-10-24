@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Box, Text, useInput } from 'ink';
 import Spinner from 'ink-spinner';
 import type { ToolName, ToolUpdate, ScanSummary } from '@releaseshield/core';
@@ -55,6 +55,14 @@ export function ScanScreen({
   const [cursorIndex, setCursorIndex] = useState(0);
   const [toolStates, setToolStates] = useState<Record<string, ToolState>>({});
   const [summary, setSummary] = useState<ScanSummary | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+
+  // Clean up running scan on unmount
+  useEffect(() => {
+    return () => {
+      abortControllerRef.current?.abort();
+    };
+  }, []);
 
   // Disable prompt during selecting and running phases
   useEffect(() => {
@@ -73,6 +81,9 @@ export function ScanScreen({
       setToolStates(initialStates);
       setPhase('running');
 
+      const controller = new AbortController();
+      abortControllerRef.current = controller;
+
       const handleUpdate = (update: ToolUpdate) => {
         setToolStates((prev) => ({
           ...prev,
@@ -84,10 +95,15 @@ export function ScanScreen({
         }));
       };
 
-      runScan(selectedTools, handleUpdate, { failTool }).then((result) => {
-        setSummary(result);
-        setPhase('complete');
-        onComplete(result);
+      runScan(selectedTools, handleUpdate, {
+        failTool,
+        abortSignal: controller.signal
+      }).then((result) => {
+        if (!controller.signal.aborted) {
+          setSummary(result);
+          setPhase('complete');
+          onComplete(result);
+        }
       });
     },
     [failTool, onComplete]

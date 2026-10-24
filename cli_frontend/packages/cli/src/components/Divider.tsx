@@ -7,7 +7,7 @@ interface DividerProps {
 
 export function Divider({ char = '─' }: DividerProps) {
   const { stdout } = useStdout();
-  const width = Math.max(40, (stdout?.columns ?? 100) - 4);
+  const width = Math.max(40, ((stdout as any)?.columns ?? process.stdout?.columns ?? 100) - 4);
   return (
     <Box marginY={0}>
       <Text dimColor>{char.repeat(width)}</Text>

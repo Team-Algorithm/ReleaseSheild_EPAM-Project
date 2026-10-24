@@ -4,6 +4,7 @@ import type { CommandRegistry } from './registry.js';
 import type { ToolName, ScanSummary } from '@releaseshield/core';
 import { HelpScreen } from '../screens/HelpScreen.js';
 import { ScanScreen } from '../screens/ScanScreen.js';
+import { ResultsScreen } from '../screens/ResultsScreen.js';
 
 declare const process: {
   exit?: (code?: number) => void;
@@ -169,17 +170,22 @@ export function registerDefaultCommands(
     }
   });
 
-  // /results stub (to be fully replaced in Step 7)
+  // /results — re-shows last scan or prompts to run /scan
   registry.register({
     name: 'results',
     description: 'Show results from the latest security scan',
     usage: '/results',
     handler: () => {
-      ctx.setOutput(
-        <Box flexDirection="column">
-          <Text dimColor>No scans yet. Run /scan to start.</Text>
-        </Box>
-      );
+      const lastSummary = ctx.getLastSummary();
+      if (!lastSummary) {
+        ctx.setOutput(
+          <Box flexDirection="column">
+            <Text dimColor>No scans yet. Run /scan to start.</Text>
+          </Box>
+        );
+      } else {
+        ctx.setOutput(<ResultsScreen summary={lastSummary} />);
+      }
     }
   });
 

@@ -3,6 +3,7 @@ import { Box, Text, useInput } from 'ink';
 import Spinner from 'ink-spinner';
 import type { ToolName, ToolUpdate, ScanSummary } from '@releaseshield/core';
 import { runScan } from '@releaseshield/core';
+import { ResultsScreen } from './ResultsScreen.js';
 
 type ScanPhase = 'selecting' | 'running' | 'complete';
 
@@ -218,127 +219,7 @@ export function ScanScreen({
 
   // PHASE 3: Scan complete - show summary
   if (phase === 'complete' && summary) {
-    const toolColWidth = 14;
-    const numColWidth = 9;
-    const dividerWidth = toolColWidth + numColWidth * 4;
-
-    return (
-      <Box flexDirection="column">
-        <Text bold color="green">
-          Scan complete
-        </Text>
-
-        {/* Tool status lines */}
-        <Box flexDirection="column" marginTop={1} marginBottom={1}>
-          {summary.tools.map((toolResult) => {
-            const label =
-              toolResult.tool.charAt(0).toUpperCase() +
-              toolResult.tool.slice(1);
-            return (
-              <Box key={toolResult.tool} flexDirection="row">
-                {toolResult.status === 'done' ? (
-                  <Text color="green">{'✓ '}</Text>
-                ) : (
-                  <Text color="red">{'✗ '}</Text>
-                )}
-                <Text>{label.padEnd(toolColWidth)}</Text>
-                {toolResult.status === 'done' ? (
-                  <>
-                    <Text color="green">{'done'.padEnd(12)}</Text>
-                    <Text>
-                      {toolResult.durationSec.toFixed(1).padStart(5)}s
-                    </Text>
-                  </>
-                ) : (
-                  <>
-                    <Text color="red">{'failed'.padEnd(12)}</Text>
-                    <Text color="red">
-                      {toolResult.error ?? 'unknown error'}
-                    </Text>
-                  </>
-                )}
-              </Box>
-            );
-          })}
-        </Box>
-
-        {/* Results Table */}
-        <Box flexDirection="column">
-          <Box flexDirection="row">
-            <Text bold>{'Tool'.padEnd(toolColWidth)}</Text>
-            <Text bold color="red">
-              {'High'.padStart(numColWidth)}
-            </Text>
-            <Text bold color="yellow">
-              {'Medium'.padStart(numColWidth)}
-            </Text>
-            <Text bold>{'Low'.padStart(numColWidth)}</Text>
-            <Text bold>{'Total'.padStart(numColWidth)}</Text>
-          </Box>
-
-          {summary.tools
-            .filter((t) => t.status === 'done')
-            .map((toolResult) => {
-              const label =
-                toolResult.tool.charAt(0).toUpperCase() +
-                toolResult.tool.slice(1);
-              const total =
-                toolResult.counts.high +
-                toolResult.counts.medium +
-                toolResult.counts.low;
-              return (
-                <Box key={toolResult.tool} flexDirection="row">
-                  <Text>{label.padEnd(toolColWidth)}</Text>
-                  <Text color="red">
-                    {String(toolResult.counts.high).padStart(numColWidth)}
-                  </Text>
-                  <Text color="yellow">
-                    {String(toolResult.counts.medium).padStart(numColWidth)}
-                  </Text>
-                  <Text>
-                    {String(toolResult.counts.low).padStart(numColWidth)}
-                  </Text>
-                  <Text>{String(total).padStart(numColWidth)}</Text>
-                </Box>
-              );
-            })}
-
-          <Box marginY={0}>
-            <Text dimColor>{'─'.repeat(dividerWidth)}</Text>
-          </Box>
-
-          {(() => {
-            const total =
-              summary.totalCounts.high +
-              summary.totalCounts.medium +
-              summary.totalCounts.low;
-            return (
-              <Box flexDirection="row">
-                <Text bold>{'Total'.padEnd(toolColWidth)}</Text>
-                <Text bold color="red">
-                  {String(summary.totalCounts.high).padStart(numColWidth)}
-                </Text>
-                <Text bold color="yellow">
-                  {String(summary.totalCounts.medium).padStart(numColWidth)}
-                </Text>
-                <Text bold>
-                  {String(summary.totalCounts.low).padStart(numColWidth)}
-                </Text>
-                <Text bold>{String(total).padStart(numColWidth)}</Text>
-              </Box>
-            );
-          })()}
-        </Box>
-
-        {/* Summary footer */}
-        <Box flexDirection="column" marginTop={1}>
-          <Text>Total time: {summary.totalDurationSec}s</Text>
-          <Box marginTop={1}>
-            <Text dimColor>Saved: {summary.savedPath}</Text>
-          </Box>
-        </Box>
-      </Box>
-    );
+    return <ResultsScreen summary={summary} />;
   }
 
   return null;

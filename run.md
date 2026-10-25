@@ -83,16 +83,118 @@ Once the terminal interface loads, try the following commands:
 
 ---
 
-## 🤖 Non-Interactive Mode (For CI/CD & Headless Automation)
+# Non-Interactive Mode
 
-To run a scan headlessly and receive pure JSON output with exit codes (`0` for success, `1` for failures):
+ReleaseShield can be used directly from the terminal without opening the interactive UI.
+
+This is useful when you want to run a scan with a single command and get the results as JSON.
+
+## Run a Scan
 
 ```bash
-# Output JSON to stdout
-node packages/cli/dist/index.js scan ./NodeGoat --tools all --json
+releaseshield scan <repository-path> --tools all --json
+```
 
-# Save JSON report to file
-node packages/cli/dist/index.js scan ./NodeGoat --tools all --json > report.json
+Replace `<repository-path>` with the path of the repository you want to scan.
+
+### Example
+
+```bash
+releaseshield scan ./NodeGoat --tools all --json
+```
+
+Here:
+
+- `scan` — starts a security scan.
+- `./NodeGoat` — the repository you want to scan. Replace this with your own repository path.
+- `--tools all` — runs all supported security scanning tools.
+- `--json` — displays the results in JSON format.
+
+## Select Specific Tools
+
+You can choose which tools to run instead of running all tools.
+
+```bash
+releaseshield scan ./NodeGoat --tools trivy,semgrep --json
+```
+
+This runs only Trivy and Semgrep.
+
+Supported tools depend on the tools configured in ReleaseShield.
+
+## Save the Results
+
+You can save the JSON output to a file:
+
+```bash
+releaseshield scan ./NodeGoat --tools all --json > results.json
+```
+
+This creates a `results.json` file containing the scan results.
+
+## Test Scanner Failure
+
+ReleaseShield provides `--fail` to simulate a scanner failure for testing.
+
+For example:
+
+```bash
+releaseshield scan ./NodeGoat --tools all --json --fail gitleaks
+```
+
+This simulates a Gitleaks failure so you can check how ReleaseShield handles scanner errors.
+
+Use this only for **testing and development**. Do not use `--fail` during a real security scan because it intentionally simulates a failure.
+
+For a real scan, use:
+
+```bash
+releaseshield scan ./NodeGoat --tools all --json
+```
+
+## Exit Codes
+
+ReleaseShield returns an exit code when the scan finishes:
+
+- `0` — all selected scanner tools completed successfully.
+- `1` — one or more scanner tools failed.
+
+These exit codes allow scripts and automated systems to know whether the scan completed successfully.
+
+## View Help
+
+To see the available commands and options:
+
+```bash
+releaseshield --help
+```
+
+During local development, you can also use:
+
+```bash
+node packages/cli/dist/index.js --help
+```
+
+## Quick Reference
+
+```bash
+# Open interactive mode
+releaseshield
+
+# Run a scan
+releaseshield scan <repository-path> --tools all --json
+
+# Run selected tools
+releaseshield scan <repository-path> --tools trivy,semgrep --json
+
+# Save results
+releaseshield scan <repository-path> --tools all --json > results.json
+
+# Test a scanner failure
+releaseshield scan <repository-path> --tools all --json --fail gitleaks
+
+# Show help
+releaseshield --help
 ```
 
 ---

@@ -45,7 +45,12 @@ export function parseCommand(input: string): ParsedCommand {
 
       if (equalIndex !== -1) {
         flagKey = token.slice(2, equalIndex);
-        flagVal = token.slice(equalIndex + 1);
+        const inlineVal = token.slice(equalIndex + 1).replace(/^["']|["']$/g, '');
+        if (inlineVal === '' && i + 1 < tokens.length && !tokens[i + 1].startsWith('--')) {
+          flagVal = tokens[++i];
+        } else {
+          flagVal = inlineVal;
+        }
       } else {
         flagKey = token.slice(2);
         // Lookahead to see if next token is a value (not starting with --)

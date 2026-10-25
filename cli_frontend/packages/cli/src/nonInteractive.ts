@@ -33,8 +33,12 @@ export function parseCliArgs(argv: string[]): {
       const val = arg.slice(8);
       tools = parseToolsArg(val);
     } else if (arg === '--tools') {
-      if (i + 1 < args.length && !args[i + 1].startsWith('-')) {
-        tools = parseToolsArg(args[++i]);
+      const toolTokens: string[] = [];
+      while (i + 1 < args.length && !args[i + 1].startsWith('-')) {
+        toolTokens.push(args[++i]);
+      }
+      if (toolTokens.length > 0) {
+        tools = parseToolsArg(toolTokens.join(','));
       }
     } else if (arg.startsWith('--fail=')) {
       const val = arg.slice(7);

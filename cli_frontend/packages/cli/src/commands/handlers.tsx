@@ -1,8 +1,8 @@
 import React from 'react';
 import { Box, Text } from 'ink';
 import type { CommandRegistry } from './registry.js';
-import type { ToolName, ScanSummary } from '@releaseshield/core';
-import { FAKE_FINDINGS } from '@releaseshield/core';
+import type { ToolName, ScanSummary, Finding } from '@releaseshield/core';
+import { filterFindings } from '@releaseshield/core';
 import { HelpScreen } from '../screens/HelpScreen.js';
 import { ScanScreen } from '../screens/ScanScreen.js';
 import { ResultsScreen } from '../screens/ResultsScreen.js';
@@ -19,6 +19,7 @@ export interface CommandHandlerContext {
   setPromptDisabled: (disabled: boolean) => void;
   onScanComplete: (summary: ScanSummary) => void;
   getLastSummary: () => ScanSummary | null;
+  getLastFindings?: () => Finding[];
 }
 
 export function registerDefaultCommands(
@@ -197,21 +198,17 @@ export function registerDefaultCommands(
     description: 'List security findings with optional filters',
     usage: '/findings [--severity high|medium|low] [--tool trivy|semgrep|gitleaks]',
     handler: (cmd) => {
-      let filtered = [...FAKE_FINDINGS];
+      const allFindings = ctx.getLastFindings ? ctx.getLastFindings() : [];
+      let filtered = [...allFindings];
 
       // Filter by severity if passed
       const sevFlag = cmd.flags['severity'] ?? cmd.flags['sev'];
-      if (typeof sevFlag === 'string') {
-        const targetSev = sevFlag.toLowerCase();
-        filtered = filtered.filter((f) => f.severity.toLowerCase() === targetSev);
-      }
-
-      // Filter by tool if passed
       const toolFlag = cmd.flags['tool'] ?? cmd.flags['tools'];
-      if (typeof toolFlag === 'string') {
-        const targetTool = toolFlag.toLowerCase();
-        filtered = filtered.filter((f) => f.tool.toLowerCase() === targetTool);
-      }
+
+      filtered = filterFindings(filtered, {
+        severity: typeof sevFlag === 'string' ? sevFlag : undefined,
+        tool: typeof toolFlag === 'string' ? toolFlag : undefined
+      });
 
       ctx.setOutput(
         <FindingsScreen

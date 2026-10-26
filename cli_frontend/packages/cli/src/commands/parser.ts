@@ -24,6 +24,10 @@ export function parseCommand(input: string): ParsedCommand {
     } else {
       tokens.push(match[0]);
     }
+    // Prevent zero-width match infinite loop
+    if (match.index === regex.lastIndex) {
+      regex.lastIndex++;
+    }
   }
 
   if (tokens.length === 0) {

@@ -1,6 +1,7 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import { Box, Text, useApp, useInput } from 'ink';
-import type { ScanSummary } from '@releaseshield/core';
+import type { ScanSummary, Finding } from '@releaseshield/core';
+import { readSarifFile, extractFindings } from '@releaseshield/core';
 import { Header } from './components/Header.js';
 import { StatusBar } from './components/StatusBar.js';
 import { MainArea } from './components/MainArea.js';
@@ -22,10 +23,12 @@ export function App() {
       }
     }
   });
+
   const [outputNode, setOutputNode] = useState<React.ReactNode | null>(null);
   const [promptDisabled, setPromptDisabled] = useState(false);
   const [lastScan, setLastScan] = useState<string>('none');
   const [lastSummary, setLastSummary] = useState<ScanSummary | null>(null);
+  const [lastFindings, setLastFindings] = useState<Finding[]>([]);
   const [activeTools, setActiveTools] = useState<string>('trivy, semgrep, gitleaks');
 
   const handleScanComplete = useCallback((summary: ScanSummary) => {
@@ -35,6 +38,19 @@ export function App() {
     setLastScan(timeStr);
     const toolNames = summary.tools.map((t) => t.tool).join(', ');
     setActiveTools(toolNames);
+
+    // Ingest real SARIF findings if a SARIF report was created
+    if (summary.savedPath) {
+      readSarifFile(summary.savedPath)
+        .then((sarifLog) => {
+          const findings = extractFindings(sarifLog);
+          setLastFindings(findings);
+        })
+        .catch(() => {
+          // If no SARIF file on disk, findings remain empty
+          setLastFindings([]);
+        });
+    }
   }, []);
 
   const registry = useMemo(() => {
@@ -45,10 +61,11 @@ export function App() {
       exitApp: () => exit(),
       setPromptDisabled,
       onScanComplete: handleScanComplete,
-      getLastSummary: () => lastSummary
+      getLastSummary: () => lastSummary,
+      getLastFindings: () => lastFindings
     });
     return reg;
-  }, [exit, handleScanComplete, lastSummary]);
+  }, [exit, handleScanComplete, lastSummary, lastFindings]);
 
   const handleCommandSubmit = (input: string) => {
     const parsed = parseCommand(input);
@@ -72,11 +89,16 @@ export function App() {
     }
   };
 
+  const currentRepo =
+    typeof process !== 'undefined' && process.env.RELEASESHIELD_REPO
+      ? process.env.RELEASESHIELD_REPO
+      : '.';
+
   return (
     <Box flexDirection="column" paddingX={1} width="100%">
       <Header />
       <Divider />
-      <StatusBar repo="./NodeGoat" tools={activeTools} lastScan={lastScan} />
+      <StatusBar repo={currentRepo} tools={activeTools} lastScan={lastScan} />
       <Divider />
       <MainArea lastCommandOutput={outputNode} />
       <Divider />

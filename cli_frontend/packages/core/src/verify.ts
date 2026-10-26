@@ -1,37 +1,67 @@
 import { runScan } from './fakeScan.js';
-import { FAKE_FINDINGS } from './findings.js';
+import { validateSarif, parseSarif, countFindings, extractFindings, mergeSarif } from './sarif.js';
+import { getToolRunner } from './tools.js';
+import type { SarifLog } from './types.js';
 
 async function main() {
-  console.log(`Loaded ${FAKE_FINDINGS.length} fake findings.`);
-  console.log('--- Starting Normal Scan (trivy, semgrep, gitleaks) ---');
-  const startTime = Date.now();
-
-  const summary = await runScan(
-    ['trivy', 'semgrep', 'gitleaks'],
-    (update) => {
-      console.log(`[UPDATE] ${update.tool.padEnd(8)} -> status: ${update.status.padEnd(7)} | elapsed: ${update.elapsedSec.toFixed(1)}s`);
-    },
-    { speedMultiplier: 50 } // Run at 50x speed for quick verification
-  );
-
-  const realWallTimeSec = ((Date.now() - startTime) / 1000).toFixed(2);
-  console.log('--- Scan Completed ---');
-  console.log(`Reported Total Duration: ${summary.totalDurationSec}s (slowest tool)`);
-  console.log(`Real Wall-Clock Time: ${realWallTimeSec}s`);
-  console.log('Total Counts:', summary.totalCounts);
-  console.log('Tool Results:', summary.tools);
-
-  console.log('\n--- Testing Failure Mode with failTool: gitleaks ---');
-  const failSummary = await runScan(
-    ['trivy', 'gitleaks'],
-    (update) => {
-      if (update.status === 'failed' || update.status === 'done') {
-        console.log(`[FAIL-TEST] ${update.tool}: ${update.status} (error: ${update.error ?? 'none'})`);
+  console.log('--- Verifying SARIF Ingestion Layer ---');
+  const sampleSarif: SarifLog = {
+    version: '2.1.0',
+    runs: [
+      {
+        tool: {
+          driver: {
+            name: 'semgrep',
+            rules: [
+              {
+                id: 'sec.sql-injection',
+                properties: { 'security-severity': '8.5' }
+              }
+            ]
+          }
+        },
+        results: [
+          {
+            ruleId: 'sec.sql-injection',
+            level: 'error',
+            message: { text: 'Potential SQL injection vulnerability' },
+            locations: [
+              {
+                physicalLocation: {
+                  artifactLocation: { uri: 'src/db.ts' },
+                  region: { startLine: 42 }
+                }
+              }
+            ]
+          }
+        ]
       }
-    },
-    { speedMultiplier: 50, failTool: 'gitleaks' }
-  );
-  console.log('Fail test summary tools:', failSummary.tools.map(t => `${t.tool}: ${t.status} (${t.error ?? 'ok'})`));
+    ]
+  };
+
+  const isValid = validateSarif(sampleSarif);
+  console.log(`SARIF Validation check: ${isValid ? 'PASSED' : 'FAILED'}`);
+
+  const counts = countFindings(sampleSarif);
+  console.log('Counted findings by severity:', counts);
+
+  const extracted = extractFindings(sampleSarif);
+  console.log(`Extracted ${extracted.length} normalized finding(s):`, extracted[0]);
+
+  const merged = mergeSarif([sampleSarif]);
+  console.log(`Merged SARIF runs count: ${merged.runs.length}`);
+
+  console.log('\n--- Verifying Tool Runners Interface ---');
+  for (const tool of ['trivy', 'semgrep', 'gitleaks'] as const) {
+    const runner = getToolRunner(tool);
+    console.log(`Tool Runner [${runner.name}]: command args preview -> ${runner.buildArgs('.', './results/test.sarif').join(' ')}`);
+  }
+
+  console.log('\n--- Verifying Normal Scan Execution ---');
+  const summary = await runScan(['trivy', 'semgrep', 'gitleaks']);
+  console.log('Production scan completed successfully.');
+  console.log('Reported tool results:', summary.tools.map((t) => `${t.tool}: ${t.status}`));
+  console.log('Total counts (clean zero findings):', summary.totalCounts);
 }
 
 main().catch(console.error);

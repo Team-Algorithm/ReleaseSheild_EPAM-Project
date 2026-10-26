@@ -1,249 +1,108 @@
-import type { Finding } from './types.js';
+import type { Finding, Severity } from './types.js';
 
-export const FAKE_FINDINGS: Finding[] = [
-  // Semgrep findings
-  {
-    tool: 'semgrep',
-    rule: 'python.django.security.injection.sql',
-    severity: 'high',
-    location: 'controllers/search.py',
-    line: 42,
-    message: 'User input concatenated directly into raw SQL query'
-  },
-  {
-    tool: 'semgrep',
-    rule: 'javascript.express.security.command-injection',
-    severity: 'high',
-    location: 'services/execService.js',
-    line: 78,
-    message: 'Unsanitized user payload passed to child_process.exec'
-  },
-  {
-    tool: 'semgrep',
-    rule: 'javascript.react.security.audit.xss',
-    severity: 'high',
-    location: 'client/components/UserProfile.tsx',
-    line: 114,
-    message: 'Use of dangerouslySetInnerHTML with untrusted user profile data'
-  },
-  {
-    tool: 'semgrep',
-    rule: 'python.lang.security.deserialization.pickle',
-    severity: 'high',
-    location: 'workers/cache_worker.py',
-    line: 33,
-    message: 'Insecure deserialization using pickle.loads on incoming stream'
-  },
-  {
-    tool: 'semgrep',
-    rule: 'javascript.node.security.path-traversal',
-    severity: 'high',
-    location: 'routes/downloads.js',
-    line: 56,
-    message: 'Path traversal vulnerability: user parameter used in fs.readFile without sanitization'
-  },
-  {
-    tool: 'semgrep',
-    rule: 'python.requests.security.ssrf',
-    severity: 'high',
-    location: 'integrations/webhook.py',
-    line: 89,
-    message: 'Unvalidated URL passed directly to requests.post causing SSRF'
-  },
-  {
-    tool: 'semgrep',
-    rule: 'javascript.crypto.weak-hash.md5',
-    severity: 'medium',
-    location: 'utils/auth.js',
-    line: 19,
-    message: 'Weak hashing algorithm MD5 used for password fingerprinting'
-  },
-  {
-    tool: 'semgrep',
-    rule: 'javascript.express.security.cors-wildcard',
-    severity: 'medium',
-    location: 'server.js',
-    line: 25,
-    message: 'Access-Control-Allow-Origin header set to unrestricted wildcard (*)'
-  },
-  {
-    tool: 'semgrep',
-    rule: 'python.flask.security.cookie-without-httponly',
-    severity: 'medium',
-    location: 'controllers/auth.py',
-    line: 67,
-    message: 'Session cookie created without HttpOnly and Secure flags'
-  },
-  {
-    tool: 'semgrep',
-    rule: 'javascript.jwt.hardcoded-jwt-secret',
-    severity: 'high',
-    location: 'middleware/verifyToken.js',
-    line: 15,
-    message: 'JWT verification with default fallback secret key string'
-  },
-  {
-    tool: 'semgrep',
-    rule: 'javascript.express.security.open-redirect',
-    severity: 'medium',
-    location: 'routes/login.js',
-    line: 104,
-    message: 'Untrusted target URL parameter used in res.redirect'
-  },
-  {
-    tool: 'semgrep',
-    rule: 'python.cryptography.insecure-cipher-mode',
-    severity: 'medium',
-    location: 'services/encryption.py',
-    line: 45,
-    message: 'ECB mode used with AES cipher instead of authenticated GCM/CBC'
-  },
-  {
-    tool: 'semgrep',
-    rule: 'javascript.node.security.regex-dos',
-    severity: 'low',
-    location: 'utils/validator.js',
-    line: 82,
-    message: 'Regular expression susceptible to catastrophic backtracking (ReDoS)'
-  },
-  {
-    tool: 'semgrep',
-    rule: 'javascript.express.security.missing-helmet',
-    severity: 'low',
-    location: 'app.js',
-    line: 12,
-    message: 'Security headers missing; helmet middleware recommended'
-  },
+/**
+ * Empty findings list - used as default clean state before scans.
+ */
+export const EMPTY_FINDINGS: readonly Finding[] = Object.freeze([]);
 
-  // Trivy findings (dependencies and configuration)
-  {
-    tool: 'trivy',
-    rule: 'CVE-2023-45133',
-    severity: 'high',
-    location: 'package.json:axios@0.21.1',
-    line: 28,
-    message: 'Axios SSRF vulnerability via follow-redirects chain'
-  },
-  {
-    tool: 'trivy',
-    rule: 'CVE-2022-29078',
-    severity: 'high',
-    location: 'package.json:ejs@3.1.6',
-    line: 34,
-    message: 'Remote Code Execution in ejs through settings.view[options]'
-  },
-  {
-    tool: 'trivy',
-    rule: 'CVE-2023-38606',
-    severity: 'high',
-    location: 'package.json:express-fileupload@1.4.0',
-    line: 41,
-    message: 'Prototype pollution leads to arbitrary file overwrite'
-  },
-  {
-    tool: 'trivy',
-    rule: 'CVE-2022-25883',
-    severity: 'medium',
-    location: 'package.json:semver@7.3.5',
-    line: 52,
-    message: 'Regular Expression Denial of Service in semver range parsing'
-  },
-  {
-    tool: 'trivy',
-    rule: 'CVE-2023-26159',
-    severity: 'medium',
-    location: 'package.json:follow-redirects@1.15.2',
-    line: 63,
-    message: 'Potential memory leak and unhandled redirect loop'
-  },
-  {
-    tool: 'trivy',
-    rule: 'CVE-2023-28154',
-    severity: 'medium',
-    location: 'package.json:webpack@5.76.0',
-    line: 18,
-    message: 'Improper restriction of operations within the bounds of a memory buffer'
-  },
-  {
-    tool: 'trivy',
-    rule: 'CVE-2024-21490',
-    severity: 'medium',
-    location: 'package.json:angular@1.8.2',
-    line: 77,
-    message: 'Cross-site scripting (XSS) via SVG element processing'
-  },
-  {
-    tool: 'trivy',
-    rule: 'CVE-2021-3749',
-    severity: 'low',
-    location: 'package.json:axios@0.21.1',
-    line: 28,
-    message: 'Regular expression denial of service in trim method'
-  },
-  {
-    tool: 'trivy',
-    rule: 'CVE-2022-0235',
-    severity: 'low',
-    location: 'package.json:node-fetch@2.6.6',
-    line: 88,
-    message: 'Exposure of sensitive information to an unauthorized actor'
-  },
-  {
-    tool: 'trivy',
-    rule: 'TRIVY-CONFIG-001',
-    severity: 'low',
-    location: 'Dockerfile:3',
-    line: 3,
-    message: 'Base image specifies latest tag rather than pinned digest'
-  },
-
-  // Gitleaks findings (secrets & credentials)
-  {
-    tool: 'gitleaks',
-    rule: 'aws-access-token',
-    severity: 'high',
-    location: 'config/aws.env',
-    line: 7,
-    message: 'AWS Access Key ID exposed: AKIAIOSFODNN7EXAMPLE'
-  },
-  {
-    tool: 'gitleaks',
-    rule: 'github-pat',
-    severity: 'high',
-    location: '.env.production',
-    line: 14,
-    message: 'GitHub Personal Access Token exposed: ghp_abc1234567890def'
-  },
-  {
-    tool: 'gitleaks',
-    rule: 'private-key',
-    severity: 'high',
-    location: 'certs/server.key',
-    line: 1,
-    message: 'Unencrypted RSA private key block found in repository'
-  },
-  {
-    tool: 'gitleaks',
-    rule: 'slack-webhook-url',
-    severity: 'high',
-    location: 'scripts/notify.sh',
-    line: 22,
-    message: 'Slack incoming webhook URL exposed with administrative access'
-  },
-  {
-    tool: 'gitleaks',
-    rule: 'stripe-secret-key',
-    severity: 'high',
-    location: 'test/fixtures/secrets.json',
-    line: 5,
-    message: 'Stripe live secret API key pattern identified: sk_live_mock...'
-  },
-  {
-    tool: 'gitleaks',
-    rule: 'generic-api-key',
-    severity: 'high',
-    location: 'services/mailer.ts',
-    line: 12,
-    message: 'Sendgrid API Key pattern exposed: SG.randomMockString'
+/**
+ * Maps severity names to numerical weights for sorting purposes.
+ */
+export function getSeverityWeight(severity: Severity): number {
+  switch (severity) {
+    case 'high':
+      return 3;
+    case 'medium':
+      return 2;
+    case 'low':
+      return 1;
+    default:
+      return 0;
   }
-];
+}
+
+/**
+ * Filter findings by optional criteria (severity, tool name, text query).
+ */
+export function filterFindings(
+  findings: Finding[],
+  filters?: {
+    severity?: string;
+    tool?: string;
+    search?: string;
+  }
+): Finding[] {
+  if (!filters) return findings;
+
+  return findings.filter((f) => {
+    if (filters.severity && f.severity.toLowerCase() !== filters.severity.toLowerCase()) {
+      return false;
+    }
+    if (filters.tool && f.tool.toLowerCase() !== filters.tool.toLowerCase()) {
+      return false;
+    }
+    if (filters.search) {
+      const q = filters.search.toLowerCase();
+      const match =
+        f.rule.toLowerCase().includes(q) ||
+        f.location.toLowerCase().includes(q) ||
+        f.message.toLowerCase().includes(q);
+      if (!match) return false;
+    }
+    return true;
+  });
+}
+
+/**
+ * Sorts findings by severity (high to low by default), tool, or location.
+ */
+export function sortFindings(
+  findings: Finding[],
+  sortBy: 'severity' | 'tool' | 'location' = 'severity'
+): Finding[] {
+  return [...findings].sort((a, b) => {
+    if (sortBy === 'severity') {
+      const diff = getSeverityWeight(b.severity) - getSeverityWeight(a.severity);
+      if (diff !== 0) return diff;
+      return a.location.localeCompare(b.location);
+    }
+    if (sortBy === 'tool') {
+      const diff = a.tool.localeCompare(b.tool);
+      if (diff !== 0) return diff;
+      return getSeverityWeight(b.severity) - getSeverityWeight(a.severity);
+    }
+    if (sortBy === 'location') {
+      const diff = a.location.localeCompare(b.location);
+      if (diff !== 0) return diff;
+      return (a.line ?? 0) - (b.line ?? 0);
+    }
+    return 0;
+  });
+}
+
+/**
+ * Paginates a list of findings.
+ */
+export function paginateFindings(
+  findings: Finding[],
+  page = 1,
+  pageSize = 10
+): {
+  findings: Finding[];
+  totalPages: number;
+  currentPage: number;
+  totalFindings: number;
+} {
+  const totalFindings = findings.length;
+  const totalPages = Math.max(1, Math.ceil(totalFindings / pageSize));
+  const currentPage = Math.min(Math.max(1, page), totalPages);
+  const startIndex = (currentPage - 1) * pageSize;
+  const pageFindings = findings.slice(startIndex, startIndex + pageSize);
+
+  return {
+    findings: pageFindings,
+    totalPages,
+    currentPage,
+    totalFindings
+  };
+}

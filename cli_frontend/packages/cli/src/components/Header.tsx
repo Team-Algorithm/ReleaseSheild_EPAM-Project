@@ -50,11 +50,28 @@ export function Header() {
   );
 
   useEffect(() => {
+    // Avoid running animation in test environments or when banner is not shown
+    if (
+      (typeof process !== 'undefined' &&
+        (process.env.NODE_ENV === 'test' || process.env.VITEST !== undefined)) ||
+      !showBanner
+    ) {
+      return;
+    }
+
+    const maxCols = TOTAL_COLS + 24;
     const interval = setInterval(() => {
-      setWavePos((prev) => (prev + 1) % (TOTAL_COLS + 24));
-    }, 60);
+      setWavePos((prev) => {
+        if (prev >= maxCols) {
+          clearInterval(interval);
+          return maxCols;
+        }
+        return prev + 1;
+      });
+    }, 45);
+
     return () => clearInterval(interval);
-  }, []);
+  }, [showBanner]);
 
   const getColColor = (col: number, isMiddle: boolean): string | undefined => {
     if (isNoColor) return undefined;

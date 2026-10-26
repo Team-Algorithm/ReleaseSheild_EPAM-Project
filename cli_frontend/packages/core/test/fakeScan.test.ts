@@ -86,4 +86,26 @@ describe('runScan Engine', () => {
     expect(summary.tools[0].status).toBe('failed');
     expect(summary.tools[0].error).toBe('Scan cancelled');
   });
+
+  it('runs normal production scan without fake counts or artificial delays', async () => {
+    const summary = await runScan(['trivy', 'semgrep', 'gitleaks']);
+    expect(summary.tools.length).toBe(3);
+    for (const toolResult of summary.tools) {
+      expect(toolResult.status).toBe('done');
+      expect(toolResult.counts).toEqual({ high: 0, medium: 0, low: 0 });
+      expect(toolResult.durationSec).toBeLessThan(1);
+    }
+    expect(summary.totalCounts).toEqual({ high: 0, medium: 0, low: 0 });
+    expect(summary.savedPath).toBe('./results/result.sarif');
+  });
+
+  it('handles failTool in normal production path without simulated delay', async () => {
+    const summary = await runScan(['trivy', 'gitleaks'], undefined, { failTool: 'gitleaks' });
+    const trivy = summary.tools.find((t) => t.tool === 'trivy');
+    const gitleaks = summary.tools.find((t) => t.tool === 'gitleaks');
+    expect(trivy?.status).toBe('done');
+    expect(trivy?.counts).toEqual({ high: 0, medium: 0, low: 0 });
+    expect(gitleaks?.status).toBe('failed');
+    expect(gitleaks?.error).toBe('gitleaks not found');
+  });
 });

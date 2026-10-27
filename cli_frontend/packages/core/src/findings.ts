@@ -1,4 +1,4 @@
-import type { Finding, Severity } from './types.js';
+import type { Finding, Severity } from "./types.js";
 
 /**
  * Empty findings list - used as default clean state before scans.
@@ -10,11 +10,11 @@ export const EMPTY_FINDINGS: readonly Finding[] = Object.freeze([]);
  */
 export function getSeverityWeight(severity: Severity): number {
   switch (severity) {
-    case 'high':
+    case "high":
       return 3;
-    case 'medium':
+    case "medium":
       return 2;
-    case 'low':
+    case "low":
       return 1;
     default:
       return 0;
@@ -30,12 +30,15 @@ export function filterFindings(
     severity?: string;
     tool?: string;
     search?: string;
-  }
+  },
 ): Finding[] {
   if (!filters) return findings;
 
   return findings.filter((f) => {
-    if (filters.severity && f.severity.toLowerCase() !== filters.severity.toLowerCase()) {
+    if (
+      filters.severity &&
+      f.severity.toLowerCase() !== filters.severity.toLowerCase()
+    ) {
       return false;
     }
     if (filters.tool && f.tool.toLowerCase() !== filters.tool.toLowerCase()) {
@@ -58,20 +61,21 @@ export function filterFindings(
  */
 export function sortFindings(
   findings: Finding[],
-  sortBy: 'severity' | 'tool' | 'location' = 'severity'
+  sortBy: "severity" | "tool" | "location" = "severity",
 ): Finding[] {
   return [...findings].sort((a, b) => {
-    if (sortBy === 'severity') {
-      const diff = getSeverityWeight(b.severity) - getSeverityWeight(a.severity);
+    if (sortBy === "severity") {
+      const diff =
+        getSeverityWeight(b.severity) - getSeverityWeight(a.severity);
       if (diff !== 0) return diff;
       return a.location.localeCompare(b.location);
     }
-    if (sortBy === 'tool') {
+    if (sortBy === "tool") {
       const diff = a.tool.localeCompare(b.tool);
       if (diff !== 0) return diff;
       return getSeverityWeight(b.severity) - getSeverityWeight(a.severity);
     }
-    if (sortBy === 'location') {
+    if (sortBy === "location") {
       const diff = a.location.localeCompare(b.location);
       if (diff !== 0) return diff;
       return (a.line ?? 0) - (b.line ?? 0);
@@ -86,7 +90,7 @@ export function sortFindings(
 export function paginateFindings(
   findings: Finding[],
   page = 1,
-  pageSize = 10
+  pageSize = 10,
 ): {
   findings: Finding[];
   totalPages: number;
@@ -103,6 +107,6 @@ export function paginateFindings(
     findings: pageFindings,
     totalPages,
     currentPage,
-    totalFindings
+    totalFindings,
   };
 }

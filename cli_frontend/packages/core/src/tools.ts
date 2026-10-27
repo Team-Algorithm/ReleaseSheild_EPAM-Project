@@ -1,15 +1,15 @@
-import { spawn } from 'child_process';
-import * as path from 'path';
-import * as fs from 'fs/promises';
+import { spawn } from "child_process";
+import * as path from "path";
+import * as fs from "fs/promises";
 import type {
   ToolName,
   ToolStatus,
   ToolRunner,
   ToolRunOptions,
   ToolRunOutput,
-  SeverityCounts
-} from './types.js';
-import { readSarifFile, countFindings } from './sarif.js';
+  SeverityCounts,
+} from "./types.js";
+import { readSarifFile, countFindings } from "./sarif.js";
 
 /**
  * Base abstract class for security scanner tool runners.
@@ -24,12 +24,12 @@ export abstract class BaseToolRunner implements ToolRunner {
   async isAvailable(): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
       try {
-        const proc = spawn(this.executable, ['--version'], {
+        const proc = spawn(this.executable, ["--version"], {
           shell: true,
-          stdio: 'ignore'
+          stdio: "ignore",
         });
-        proc.on('error', () => resolve(false));
-        proc.on('close', (code) => resolve(code === 0));
+        proc.on("error", () => resolve(false));
+        proc.on("close", (code) => resolve(code === 0));
       } catch {
         resolve(false);
       }
@@ -51,49 +51,55 @@ export abstract class BaseToolRunner implements ToolRunner {
     return new Promise<ToolRunOutput>((resolve) => {
       let procError: string | undefined;
 
+
+      console.log("[DEBUG] Trivy executable:", this.executable);
+      console.log("[DEBUG] Trivy arguments:", args);
+
       const proc = spawn(this.executable, args, {
         shell: true,
-        stdio: ['ignore', 'pipe', 'pipe']
+        stdio: ["ignore", "pipe", "pipe"],
       });
 
-      let stderrOutput = '';
-      proc.stderr?.on('data', (chunk) => {
+      let stderrOutput = "";
+      proc.stderr?.on("data", (chunk) => {
         stderrOutput += chunk.toString();
       });
 
       if (options.abortSignal) {
-        options.abortSignal.addEventListener('abort', () => {
-          proc.kill('SIGTERM');
+        options.abortSignal.addEventListener("abort", () => {
+          proc.kill("SIGTERM");
         });
       }
 
-      proc.on('error', (err) => {
+      proc.on("error", (err) => {
         procError = err.message;
       });
 
-      proc.on('close', async (exitCode) => {
-        const durationSec = Number(((Date.now() - startTime) / 1000).toFixed(1));
+      proc.on("close", async (exitCode) => {
+        const durationSec = Number(
+          ((Date.now() - startTime) / 1000).toFixed(1),
+        );
         const code = exitCode ?? 1;
 
         if (options.abortSignal?.aborted) {
           return resolve({
             tool: this.name,
-            status: 'failed',
+            status: "failed",
             exitCode: code,
             durationSec,
-            error: 'Scan cancelled',
-            counts: { high: 0, medium: 0, low: 0 }
+            error: "Scan cancelled",
+            counts: { high: 0, medium: 0, low: 0 },
           });
         }
 
         if (procError) {
           return resolve({
             tool: this.name,
-            status: 'failed',
+            status: "failed",
             exitCode: code,
             durationSec,
             error: `${this.name} not found`,
-            counts: { high: 0, medium: 0, low: 0 }
+            counts: { high: 0, medium: 0, low: 0 },
           });
         }
 
@@ -101,8 +107,9 @@ export abstract class BaseToolRunner implements ToolRunner {
         try {
           const sarifLog = await readSarifFile(options.outputPath);
           const counts: SeverityCounts = countFindings(sarifLog);
-          const hasIssues = counts.high > 0 || counts.medium > 0 || counts.low > 0;
-          const status: ToolStatus = hasIssues ? 'done' : 'done';
+          const hasIssues =
+            counts.high > 0 || counts.medium > 0 || counts.low > 0;
+          const status: ToolStatus = hasIssues ? "done" : "done";
 
           resolve({
             tool: this.name,
@@ -111,27 +118,29 @@ export abstract class BaseToolRunner implements ToolRunner {
             durationSec,
             sarifPath: options.outputPath,
             sarifLog,
-            counts
+            counts,
           });
         } catch (sarifErr) {
           // If tool exited with non-zero and no SARIF produced, report failure
           if (code !== 0) {
             resolve({
               tool: this.name,
-              status: 'failed',
+              status: "failed",
               exitCode: code,
               durationSec,
-              error: stderrOutput.trim() || `${this.name} failed with exit code ${code}`,
-              counts: { high: 0, medium: 0, low: 0 }
+              error:
+                stderrOutput.trim() ||
+                `${this.name} failed with exit code ${code}`,
+              counts: { high: 0, medium: 0, low: 0 },
             });
           } else {
             // Clean exit but no findings SARIF
             resolve({
               tool: this.name,
-              status: 'done',
+              status: "done",
               exitCode: 0,
               durationSec,
-              counts: { high: 0, medium: 0, low: 0 }
+              counts: { high: 0, medium: 0, low: 0 },
             });
           }
         }
@@ -144,11 +153,20 @@ export abstract class BaseToolRunner implements ToolRunner {
  * Runner for Trivy vulnerability & misconfiguration scanner.
  */
 export class TrivyRunner extends BaseToolRunner {
-  readonly name: ToolName = 'trivy';
-  readonly executable = 'trivy';
+  readonly name: ToolName = "trivy";
+  readonly executable = process.env.TRIVY_PATH || 'trivy';
 
   buildArgs(targetPath: string, outputPath: string): string[] {
-    return ['fs', '--format', 'sarif', '--output', outputPath, targetPath];
+    return [
+      "fs",
+      "--scanners",
+      "vuln",
+      "--format",
+      "sarif",
+      "--output",
+      outputPath,
+      targetPath,
+    ];
   }
 }
 
@@ -156,11 +174,11 @@ export class TrivyRunner extends BaseToolRunner {
  * Runner for Semgrep static analysis / SAST scanner.
  */
 export class SemgrepRunner extends BaseToolRunner {
-  readonly name: ToolName = 'semgrep';
-  readonly executable = 'semgrep';
+  readonly name: ToolName = "semgrep";
+  readonly executable = "semgrep";
 
   buildArgs(targetPath: string, outputPath: string): string[] {
-    return ['scan', '--sarif', '--output', outputPath, targetPath];
+    return ["scan", "--sarif", "--output", outputPath, targetPath];
   }
 }
 
@@ -168,18 +186,26 @@ export class SemgrepRunner extends BaseToolRunner {
  * Runner for Gitleaks secret & credential detector.
  */
 export class GitleaksRunner extends BaseToolRunner {
-  readonly name: ToolName = 'gitleaks';
-  readonly executable = 'gitleaks';
+  readonly name: ToolName = "gitleaks";
+  readonly executable = "gitleaks";
 
   buildArgs(targetPath: string, outputPath: string): string[] {
-    return ['detect', '--source', targetPath, '--report-format', 'sarif', '--report-path', outputPath];
+    return [
+      "detect",
+      "--source",
+      targetPath,
+      "--report-format",
+      "sarif",
+      "--report-path",
+      outputPath,
+    ];
   }
 }
 
 const RUNNERS: Record<ToolName, ToolRunner> = {
   trivy: new TrivyRunner(),
   semgrep: new SemgrepRunner(),
-  gitleaks: new GitleaksRunner()
+  gitleaks: new GitleaksRunner(),
 };
 
 /**

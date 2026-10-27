@@ -1,4 +1,4 @@
-import type { ParsedCommand } from './parser.js';
+import type { ParsedCommand } from "./parser.js";
 
 export interface CommandContext {
   [key: string]: any;
@@ -14,7 +14,9 @@ export interface CommandEntry {
 export function levenshteinDistance(a: string, b: string): number {
   const m = a.length;
   const n = b.length;
-  const dp: number[][] = Array.from({ length: m + 1 }, () => Array(n + 1).fill(0));
+  const dp: number[][] = Array.from({ length: m + 1 }, () =>
+    Array(n + 1).fill(0),
+  );
 
   for (let i = 0; i <= m; i++) dp[i][0] = i;
   for (let j = 0; j <= n; j++) dp[0][j] = j;
@@ -36,12 +38,12 @@ export class CommandRegistry {
   private commands: Map<string, CommandEntry> = new Map();
 
   register(command: CommandEntry): void {
-    const key = command.name.toLowerCase().replace(/^\//, '');
+    const key = command.name.toLowerCase().replace(/^\//, "");
     this.commands.set(key, command);
   }
 
   get(name: string): CommandEntry | undefined {
-    const key = name.toLowerCase().replace(/^\//, '');
+    const key = name.toLowerCase().replace(/^\//, "");
     return this.commands.get(key);
   }
 
@@ -50,7 +52,7 @@ export class CommandRegistry {
   }
 
   suggestClosest(inputName: string): CommandEntry | undefined {
-    const clean = inputName.toLowerCase().replace(/^\//, '');
+    const clean = inputName.toLowerCase().replace(/^\//, "");
     let closest: CommandEntry | undefined;
     let minDistance = Infinity;
 

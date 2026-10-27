@@ -1,8 +1,9 @@
-export type ToolName = 'trivy' | 'semgrep' | 'gitleaks';
+export type ToolName = "trivy" | "semgrep" | "gitleaks";
 
-export type ToolStatus = 'waiting' | 'running' | 'done' | 'issues_found' | 'failed';
+export type ToolStatus =
+  "waiting" | "running" | "done" | "issues_found" | "failed";
 
-export type Severity = 'high' | 'medium' | 'low';
+export type Severity = "high" | "medium" | "low";
 
 export interface SeverityCounts {
   high: number;
@@ -84,10 +85,10 @@ export interface SarifRule {
   shortDescription?: { text?: string };
   fullDescription?: { text?: string };
   defaultConfiguration?: {
-    level?: 'error' | 'warning' | 'note' | 'none';
+    level?: "error" | "warning" | "note" | "none";
   };
   properties?: {
-    'security-severity'?: string | number;
+    "security-severity"?: string | number;
     tags?: string[];
     precision?: string;
     problem?: {
@@ -100,7 +101,7 @@ export interface SarifRule {
 export interface SarifResult {
   ruleId?: string;
   ruleIndex?: number;
-  level?: 'error' | 'warning' | 'note' | 'none';
+  level?: "error" | "warning" | "note" | "none";
   message?: {
     text?: string;
   };
@@ -108,7 +109,7 @@ export interface SarifResult {
   fingerprints?: Record<string, string>;
   partialFingerprints?: Record<string, string>;
   properties?: {
-    'security-severity'?: string | number;
+    "security-severity"?: string | number;
     [key: string]: unknown;
   };
 }

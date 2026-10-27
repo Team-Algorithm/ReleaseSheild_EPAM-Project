@@ -1,0 +1,13 @@
+﻿{
+  "version": "1.0.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "ReleaseShield Test Scanner"
+        }
+      },
+      "results": []
+    }
+  ]
+}

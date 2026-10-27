@@ -1,0 +1,79 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "Trivy",
+          "version": "0.48.0",
+          "informationUri": "https://aquasecurity.github.io/trivy/",
+          "rules": [
+            {
+              "id": "CVE-2023-45133",
+              "shortDescription": {
+                "text": "Axios SSRF vulnerability via follow-redirects chain"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              }
+            },
+            {
+              "id": "CVE-2022-25883",
+              "shortDescription": {
+                "text": "Regular Expression Denial of Service in semver"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CVE-2023-45133",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "Axios package vulnerable to SSRF in follow-redirects chain"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "package.json"
+                },
+                "region": {
+                  "startLine": 28,
+                  "startColumn": 5
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CVE-2022-25883",
+          "ruleIndex": 1,
+          "level": "warning",
+          "message": {
+            "text": "Regular Expression Denial of Service in semver range parsing"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "package.json"
+                },
+                "region": {
+                  "startLine": 52,
+                  "startColumn": 5
+                }
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

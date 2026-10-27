@@ -1,0 +1,204 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "Semgrep",
+          "version": "1.45.0",
+          "informationUri": "https://semgrep.dev",
+          "rules": [
+            {
+              "id": "python.django.security.injection.sql",
+              "shortDescription": {
+                "text": "User input concatenated directly into raw SQL query"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              }
+            },
+            {
+              "id": "javascript.express.security.command-injection",
+              "shortDescription": {
+                "text": "Unsanitized user payload passed to child_process.exec"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "python.django.security.injection.sql",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "User input concatenated directly into raw SQL query in controllers/search.py"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "controllers/search.py"
+                },
+                "region": {
+                  "startLine": 42,
+                  "startColumn": 5
+                }
+              }
+            }
+          ],
+          "fingerprints": {
+            "primaryLocationLineHash": "a1b2c3d4e5f60718"
+          }
+        },
+        {
+          "ruleId": "javascript.express.security.command-injection",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "Unsanitized user payload passed to child_process.exec in services/execService.js"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "services/execService.js"
+                },
+                "region": {
+                  "startLine": 78,
+                  "startColumn": 12
+                }
+              }
+            }
+          ],
+          "fingerprints": {
+            "primaryLocationLineHash": "b2c3d4e5f6071829"
+          }
+        }
+      ]
+    },
+    {
+      "tool": {
+        "driver": {
+          "name": "Trivy",
+          "version": "0.48.0",
+          "informationUri": "https://aquasecurity.github.io/trivy/",
+          "rules": [
+            {
+              "id": "CVE-2023-45133",
+              "shortDescription": {
+                "text": "Axios SSRF vulnerability via follow-redirects chain"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              }
+            },
+            {
+              "id": "CVE-2022-25883",
+              "shortDescription": {
+                "text": "Regular Expression Denial of Service in semver"
+              },
+              "defaultConfiguration": {
+                "level": "warning"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "CVE-2023-45133",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "Axios package vulnerable to SSRF in follow-redirects chain"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "package.json"
+                },
+                "region": {
+                  "startLine": 28,
+                  "startColumn": 5
+                }
+              }
+            }
+          ]
+        },
+        {
+          "ruleId": "CVE-2022-25883",
+          "ruleIndex": 1,
+          "level": "warning",
+          "message": {
+            "text": "Regular Expression Denial of Service in semver range parsing"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "package.json"
+                },
+                "region": {
+                  "startLine": 52,
+                  "startColumn": 5
+                }
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "tool": {
+        "driver": {
+          "name": "Gitleaks",
+          "version": "8.18.0",
+          "informationUri": "https://github.com/gitleaks/gitleaks",
+          "rules": [
+            {
+              "id": "aws-access-token",
+              "shortDescription": {
+                "text": "AWS Access Key ID exposed"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "aws-access-token",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "AWS Access Key ID exposed: AKIAIOSFODNN7EXAMPLE"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "config/aws.env"
+                },
+                "region": {
+                  "startLine": 7,
+                  "startColumn": 1
+                }
+              }
+            }
+          ],
+          "fingerprints": {
+            "secretHash": "c3d4e5f60718293a"
+          }
+        }
+      ]
+    }
+  ]
+}

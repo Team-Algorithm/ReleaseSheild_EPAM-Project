@@ -1,0 +1,85 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "Semgrep",
+          "version": "1.45.0",
+          "informationUri": "https://semgrep.dev",
+          "rules": [
+            {
+              "id": "python.django.security.injection.sql",
+              "shortDescription": {
+                "text": "User input concatenated directly into raw SQL query"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              }
+            },
+            {
+              "id": "javascript.express.security.command-injection",
+              "shortDescription": {
+                "text": "Unsanitized user payload passed to child_process.exec"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "python.django.security.injection.sql",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "User input concatenated directly into raw SQL query in controllers/search.py"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "controllers/search.py"
+                },
+                "region": {
+                  "startLine": 42,
+                  "startColumn": 5
+                }
+              }
+            }
+          ],
+          "fingerprints": {
+            "primaryLocationLineHash": "a1b2c3d4e5f60718"
+          }
+        },
+        {
+          "ruleId": "javascript.express.security.command-injection",
+          "ruleIndex": 1,
+          "level": "error",
+          "message": {
+            "text": "Unsanitized user payload passed to child_process.exec in services/execService.js"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "services/execService.js"
+                },
+                "region": {
+                  "startLine": 78,
+                  "startColumn": 12
+                }
+              }
+            }
+          ],
+          "fingerprints": {
+            "primaryLocationLineHash": "b2c3d4e5f6071829"
+          }
+        }
+      ]
+    }
+  ]
+}

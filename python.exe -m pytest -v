@@ -1,0 +1,18 @@
+docs/bug-compatibility-report.md:57: trailing whitespace.
+[32m+[m[32m- **Detail:** `src/sarif_merger.py` contains `def merge_sarif_reports(*args, **kwargs): pass`. Because the body is `pass`, calling this function returns `None`.[m[41m [m
+docs/integration-contract.md:4: trailing whitespace.
+[32m+[m[32m**Author:** Role 8 — Integration & Validation[m[41m  [m
+docs/integration-contract.md:5: trailing whitespace.
+[32m+[m[32m**Target:** Sprint 1 Data Pipeline & Layer Interfaces[m[41m  [m
+docs/integration-contract.md:107: trailing whitespace.
+[32m+[m[41m    [m
+docs/integration-contract.md:111: trailing whitespace.
+[32m+[m[41m        [m
+docs/integration-contract.md:121: trailing whitespace.
+[32m+[m[41m    [m
+docs/integration-contract.md:124: trailing whitespace.
+[32m+[m[41m        [m
+docs/integration-contract.md:157: trailing whitespace.
+[32m+[m[32mThe SARIF standard defines four result levels: `"error"`, `"warning"`, `"note"`, and `"none"`.[m[41m  [m
+docs/role-overview.md:65: trailing whitespace.
+[32m+[m[32mThe SARIF specification intentionally designed `runs` as an array so that **a single SARIF report can contain findings from one or more scanner executions**.[m[41m [m

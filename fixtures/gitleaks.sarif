@@ -1,0 +1,52 @@
+{
+  "$schema": "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+  "version": "2.1.0",
+  "runs": [
+    {
+      "tool": {
+        "driver": {
+          "name": "Gitleaks",
+          "version": "8.18.0",
+          "informationUri": "https://github.com/gitleaks/gitleaks",
+          "rules": [
+            {
+              "id": "aws-access-token",
+              "shortDescription": {
+                "text": "AWS Access Key ID exposed"
+              },
+              "defaultConfiguration": {
+                "level": "error"
+              }
+            }
+          ]
+        }
+      },
+      "results": [
+        {
+          "ruleId": "aws-access-token",
+          "ruleIndex": 0,
+          "level": "error",
+          "message": {
+            "text": "AWS Access Key ID exposed: AKIAIOSFODNN7EXAMPLE"
+          },
+          "locations": [
+            {
+              "physicalLocation": {
+                "artifactLocation": {
+                  "uri": "config/aws.env"
+                },
+                "region": {
+                  "startLine": 7,
+                  "startColumn": 1
+                }
+              }
+            }
+          ],
+          "fingerprints": {
+            "secretHash": "c3d4e5f60718293a"
+          }
+        }
+      ]
+    }
+  ]
+}

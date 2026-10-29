@@ -156,7 +156,13 @@ export function ResultsScreen({ summary, columns: propColumns }: ResultsScreenPr
 
       {/* Saved SARIF footer */}
       <Box marginTop={1}>
-        <Text dimColor={!isNoColor}>Saved: {summary.savedPath}</Text>
+        {summary.savedPath ? (
+          <Text dimColor={!isNoColor}>Saved: {summary.savedPath}</Text>
+        ) : (
+          <Text dimColor={!isNoColor} color={safeYellow}>
+            No report saved
+          </Text>
+        )}
       </Box>
     </Box>
   );

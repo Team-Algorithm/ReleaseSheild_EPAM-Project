@@ -11,7 +11,7 @@ import {
   buildSummary,
   readSarifFile,
   writeSarifFile,
-} from "../src/sarif.js";
+} from "../src/sarif/index.js";
 import type { SarifLog } from "../src/types.js";
 
 describe("SARIF Ingestion & Processing Layer", () => {

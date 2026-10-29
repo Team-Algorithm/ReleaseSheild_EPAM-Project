@@ -17,7 +17,7 @@ export interface CommandHandlerContext {
   setOutput: (node: React.ReactNode | null) => void;
   exitApp: () => void;
   setPromptDisabled: (disabled: boolean) => void;
-  onScanComplete: (summary: ScanSummary) => void;
+  onScanComplete: (summary: ScanSummary, targetPath?: string) => void;
   getLastSummary: () => ScanSummary | null;
   getLastFindings?: () => Finding[];
 }
@@ -161,7 +161,7 @@ export function registerDefaultCommands(
           preselectedTools={preselectedTools}
           failTool={failTool}
           onComplete={(summary) => {
-            ctx.onScanComplete(summary);
+            ctx.onScanComplete(summary, targetPath);
           }}
           onCancel={() => {
             ctx.setPromptDisabled(false);

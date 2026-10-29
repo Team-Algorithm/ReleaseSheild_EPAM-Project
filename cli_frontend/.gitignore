@@ -2,3 +2,10 @@ node_modules/
 dist/
 *.tsbuildinfo
 .DS_Store
+
+# Generated scan reports and temporary scan artifacts
+results/*.sarif
+results/*.tmp
+results/*.sarif.tmp
+!results/.gitkeep
+

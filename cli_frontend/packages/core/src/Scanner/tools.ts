@@ -9,7 +9,7 @@ import type {
   ToolRunOutput,
   SeverityCounts,
 } from "../types.js";
-import { readSarifFile, countFindings } from "../sarif.js";
+import { readSarifFile, countFindings } from "../sarif/index.js";
 
 /**
  * Base abstract class for security scanner tool runners.
@@ -45,24 +45,40 @@ export abstract class BaseToolRunner implements ToolRunner {
     const startTime = Date.now();
     const args = this.buildArgs(options.targetPath, options.outputPath);
 
+    // Prevent old report from being mistaken for current run output
+    await fs.rm(options.outputPath, { force: true });
     // Ensure output directory exists
     await fs.mkdir(path.dirname(options.outputPath), { recursive: true });
 
     return new Promise<ToolRunOutput>((resolve) => {
       let procError: string | undefined;
-
-
-      console.log("[DEBUG] Trivy executable:", this.executable);
-      console.log("[DEBUG] Trivy arguments:", args);
+      let timedOut = false;
+      let timeoutId: NodeJS.Timeout | undefined;
 
       const proc = spawn(this.executable, args, {
         shell: true,
         stdio: ["ignore", "pipe", "pipe"],
       });
 
+      if (options.timeoutMs && options.timeoutMs > 0) {
+        timeoutId = setTimeout(() => {
+          timedOut = true;
+          proc.kill("SIGTERM");
+        }, options.timeoutMs);
+      }
+
       let stderrOutput = "";
       proc.stderr?.on("data", (chunk) => {
-        stderrOutput += chunk.toString();
+        if (stderrOutput.length < 8192) {
+          stderrOutput += chunk.toString();
+        }
+      });
+
+      let stdoutOutput = "";
+      proc.stdout?.on("data", (chunk) => {
+        if (stdoutOutput.length < 8192) {
+          stdoutOutput += chunk.toString();
+        }
       });
 
       if (options.abortSignal) {
@@ -76,12 +92,29 @@ export abstract class BaseToolRunner implements ToolRunner {
       });
 
       proc.on("close", async (exitCode) => {
+        if (timeoutId) {
+          clearTimeout(timeoutId);
+        }
+
         const durationSec = Number(
           ((Date.now() - startTime) / 1000).toFixed(1),
         );
         const code = exitCode ?? 1;
 
+        if (timedOut) {
+          await fs.rm(options.outputPath, { force: true });
+          return resolve({
+            tool: this.name,
+            status: "failed",
+            exitCode: code,
+            durationSec,
+            error: `Scan timed out after ${options.timeoutMs}ms`,
+            counts: { high: 0, medium: 0, low: 0 },
+          });
+        }
+
         if (options.abortSignal?.aborted) {
+          await fs.rm(options.outputPath, { force: true });
           return resolve({
             tool: this.name,
             status: "failed",
@@ -93,6 +126,7 @@ export abstract class BaseToolRunner implements ToolRunner {
         }
 
         if (procError) {
+          await fs.rm(options.outputPath, { force: true });
           return resolve({
             tool: this.name,
             status: "failed",
@@ -103,7 +137,7 @@ export abstract class BaseToolRunner implements ToolRunner {
           });
         }
 
-        // Try reading output SARIF file
+        // Try reading and validating output SARIF file
         try {
           const sarifLog = await readSarifFile(options.outputPath);
           const counts: SeverityCounts = countFindings(sarifLog);
@@ -121,28 +155,23 @@ export abstract class BaseToolRunner implements ToolRunner {
             counts,
           });
         } catch (sarifErr) {
-          // If tool exited with non-zero and no SARIF produced, report failure
-          if (code !== 0) {
-            resolve({
-              tool: this.name,
-              status: "failed",
-              exitCode: code,
-              durationSec,
-              error:
-                stderrOutput.trim() ||
-                `${this.name} failed with exit code ${code}`,
-              counts: { high: 0, medium: 0, low: 0 },
-            });
-          } else {
-            // Clean exit but no findings SARIF
-            resolve({
-              tool: this.name,
-              status: "done",
-              exitCode: 0,
-              durationSec,
-              counts: { high: 0, medium: 0, low: 0 },
-            });
-          }
+          // Never report missing or invalid SARIF as a clean scan!
+          await fs.rm(options.outputPath, { force: true });
+          const diag = stderrOutput.trim() || stdoutOutput.trim();
+          const sarifMsg =
+            sarifErr instanceof Error ? sarifErr.message : String(sarifErr);
+          const error = diag
+            ? `${this.name} failed (exit ${code}): ${diag}`
+            : `${this.name} exited with code ${code} without producing a valid SARIF report (${sarifMsg})`;
+
+          resolve({
+            tool: this.name,
+            status: "failed",
+            exitCode: code,
+            durationSec,
+            error,
+            counts: { high: 0, medium: 0, low: 0 },
+          });
         }
       });
     });
@@ -154,7 +183,7 @@ export abstract class BaseToolRunner implements ToolRunner {
  */
 export class TrivyRunner extends BaseToolRunner {
   readonly name: ToolName = "trivy";
-  readonly executable = process.env.TRIVY_PATH || 'trivy';
+  readonly executable = process.env.TRIVY_PATH || "trivy";
 
   buildArgs(targetPath: string, outputPath: string): string[] {
     return [

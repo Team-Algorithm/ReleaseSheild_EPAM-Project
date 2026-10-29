@@ -100,7 +100,11 @@ export async function runNonInteractiveScan(
       );
     }
     process.stdout.write(`Total time: ${summary.totalDurationSec}s\n`);
-    process.stdout.write(`Saved: ${summary.savedPath}\n`);
+    if (summary.savedPath) {
+      process.stdout.write(`Saved: ${summary.savedPath}\n`);
+    } else {
+      process.stdout.write("No report saved\n");
+    }
   }
 
   const anyFailed = summary.tools.some((t) => t.status === "failed");

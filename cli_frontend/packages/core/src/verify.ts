@@ -5,7 +5,7 @@ import {
   countFindings,
   extractFindings,
   mergeSarif,
-} from "./sarif.js";
+} from "./sarif/index.js";
 import { getToolRunner } from "./Scanner/tools.js";
 import type { SarifLog } from "./types.js";
 

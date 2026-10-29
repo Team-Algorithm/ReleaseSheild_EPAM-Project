@@ -8,7 +8,8 @@ import {
   readSarifFile,
   mergeSarif,
   writeSarifFile,
-} from './sarif.js';
+  buildSummary,
+} from './sarif/index.js';
 
 import type {
   ToolName,
@@ -43,13 +44,13 @@ export async function runScan(
   onUpdate?: ScanUpdateCallback,
   options?: ScanOptions
 ): Promise<ScanSummary> {
-  // If no tools selected, return empty summary immediately
+  // If no tools selected, return empty summary immediately with empty savedPath
   if (tools.length === 0) {
     return {
       tools: [],
       totalCounts: { high: 0, medium: 0, low: 0 },
       totalDurationSec: 0,
-      savedPath: './results/result.sarif'
+      savedPath: ''
     };
   }
 
@@ -58,184 +59,176 @@ export async function runScan(
 
   // Normal production scan path: no fake finding counts, no artificial delays, no fabricated durations
   if (!isSimulation) {
-  const savedPath = './results/result.sarif';
-  const targetPath = path.resolve(options?.targetPath ?? '.');
-  const finalOutputPath = path.resolve(savedPath);
+    const targetPath = path.resolve(options?.targetPath ?? '.');
+    const canonicalSavedPath = options?.outputPath ?? './results/result.sarif';
+    const finalOutputPath = path.resolve(canonicalSavedPath);
 
-  // Prevent an old report from being mistaken for the current scan.
-  await fs.rm(finalOutputPath, { force: true });
+    // Prevent an old report from being mistaken for the current scan.
+    await fs.rm(finalOutputPath, { force: true });
 
-  const results = await Promise.all(
-    tools.map(async (tool): Promise<ToolResult> => {
-      const startTime = Date.now();
-      const outputPath = path.resolve(
-        options?.sarifFiles?.[tool] ?? `./results/${tool}.sarif`
-      );
-
-      onUpdate?.({
-        tool,
-        status: 'running',
-        elapsedSec: 0
-      });
-
-      if (options?.abortSignal?.aborted) {
-        const result: ToolResult = {
-          tool,
-          status: 'failed',
-          durationSec: 0,
-          counts: { high: 0, medium: 0, low: 0 },
-          error: 'Scan cancelled'
-        };
-
-        onUpdate?.({
-          tool,
-          status: 'failed',
-          elapsedSec: 0,
-          error: result.error,
-          counts: result.counts
-        });
-
-        return result;
-      }
-
-      if (options?.failTool === tool) {
-        const result: ToolResult = {
-          tool,
-          status: 'failed',
-          durationSec: 0,
-          counts: { high: 0, medium: 0, low: 0 },
-          error: `${tool} not found (simulated failure)`
-        };
-
-        onUpdate?.({
-          tool,
-          status: 'failed',
-          elapsedSec: 0,
-          error: result.error,
-          counts: result.counts
-        });
-
-        return result;
-      }
-
-      try {
-        // Remove a previous report so it cannot be reused accidentally.
-        await fs.rm(outputPath, { force: true });
-
-        const output = await getToolRunner(tool).run({
-          targetPath,
-          outputPath,
-          abortSignal: options?.abortSignal
-        });
-
-        const durationSec = Number(
-          ((Date.now() - startTime) / 1000).toFixed(1)
+    const results = await Promise.all(
+      tools.map(async (tool): Promise<ToolResult> => {
+        const startTime = Date.now();
+        const outputPath = path.resolve(
+          options?.sarifFiles?.[tool] ?? `./results/${tool}.sarif`
         );
 
-        const result: ToolResult = {
-          tool,
-          status: output.status,
-          durationSec,
-          counts: output.counts,
-          ...(output.error ? { error: output.error } : {})
-        };
-
         onUpdate?.({
           tool,
-          status: result.status,
-          elapsedSec: durationSec,
-          ...(result.error ? { error: result.error } : {}),
-          counts: result.counts
+          status: 'running',
+          elapsedSec: 0
         });
 
-        return result;
-      } catch (error) {
-        const durationSec = Number(
-          ((Date.now() - startTime) / 1000).toFixed(1)
-        );
-        const message =
-          error instanceof Error ? error.message : String(error);
+        if (options?.abortSignal?.aborted) {
+          const result: ToolResult = {
+            tool,
+            status: 'failed',
+            durationSec: 0,
+            counts: { high: 0, medium: 0, low: 0 },
+            error: 'Scan cancelled'
+          };
 
-        const result: ToolResult = {
-          tool,
-          status: 'failed',
-          durationSec,
-          counts: { high: 0, medium: 0, low: 0 },
-          error: message
-        };
+          onUpdate?.({
+            tool,
+            status: 'failed',
+            elapsedSec: 0,
+            error: result.error,
+            counts: result.counts
+          });
 
-        onUpdate?.({
-          tool,
-          status: 'failed',
-          elapsedSec: durationSec,
-          error: message,
-          counts: result.counts
-        });
+          return result;
+        }
 
-        return result;
-      }
-    })
-  );
+        if (options?.failTool === tool) {
+          const result: ToolResult = {
+            tool,
+            status: 'failed',
+            durationSec: 0,
+            counts: { high: 0, medium: 0, low: 0 },
+            error: `${tool} not found (simulated failure)`
+          };
 
-  // Merge the actual SARIF reports produced by successful scanners.
-  const sarifLogs = [];
+          onUpdate?.({
+            tool,
+            status: 'failed',
+            elapsedSec: 0,
+            error: result.error,
+            counts: result.counts
+          });
 
-  for (const result of results) {
-    if (result.status === 'failed') {
-      continue;
-    }
+          return result;
+        }
 
-    const reportPath = path.resolve(
-      options?.sarifFiles?.[result.tool] ??
-        `./results/${result.tool}.sarif`
+        try {
+          // Remove a previous report so it cannot be reused accidentally.
+          await fs.rm(outputPath, { force: true });
+
+          const output = await getToolRunner(tool).run({
+            targetPath,
+            outputPath,
+            abortSignal: options?.abortSignal
+          });
+
+          const durationSec = Number(
+            ((Date.now() - startTime) / 1000).toFixed(1)
+          );
+
+          const result: ToolResult = {
+            tool,
+            status: output.status,
+            durationSec,
+            counts: output.counts,
+            ...(output.error ? { error: output.error } : {})
+          };
+
+          onUpdate?.({
+            tool,
+            status: result.status,
+            elapsedSec: durationSec,
+            ...(result.error ? { error: result.error } : {}),
+            counts: result.counts
+          });
+
+          return result;
+        } catch (error) {
+          const durationSec = Number(
+            ((Date.now() - startTime) / 1000).toFixed(1)
+          );
+          const message =
+            error instanceof Error ? error.message : String(error);
+
+          const result: ToolResult = {
+            tool,
+            status: 'failed',
+            durationSec,
+            counts: { high: 0, medium: 0, low: 0 },
+            error: message
+          };
+
+          onUpdate?.({
+            tool,
+            status: 'failed',
+            elapsedSec: durationSec,
+            error: message,
+            counts: result.counts
+          });
+
+          return result;
+        }
+      })
     );
 
-    try {
-      const sarifLog = await readSarifFile(reportPath);
-      sarifLogs.push(sarifLog);
-    } catch {
-      const failedResult = results.find(
-        (item) => item.tool === result.tool
+    // Collect and validate the actual SARIF reports produced by successful scanners.
+    const sarifLogs = [];
+
+    for (const result of results) {
+      if (result.status === 'failed') {
+        continue;
+      }
+
+      const reportPath = path.resolve(
+        options?.sarifFiles?.[result.tool] ??
+          `./results/${result.tool}.sarif`
       );
 
-      if (failedResult) {
-        failedResult.status = 'failed';
-        failedResult.error =
-        'Scanner did not produce a valid SARIF report.';
-        failedResult.counts = { high: 0, medium: 0, low: 0 };
+      try {
+        const sarifLog = await readSarifFile(reportPath);
+        sarifLogs.push(sarifLog);
+      } catch (err) {
+        const failedResult = results.find(
+          (item) => item.tool === result.tool
+        );
+
+        if (failedResult) {
+          failedResult.status = 'failed';
+          failedResult.error = `Scanner did not produce a valid SARIF report: ${err instanceof Error ? err.message : String(err)}`;
+          failedResult.counts = { high: 0, medium: 0, low: 0 };
+        }
       }
     }
+
+    let savedPath = '';
+
+    if (sarifLogs.length > 0) {
+      try {
+        const merged = mergeSarif(sarifLogs);
+        await writeSarifFile(finalOutputPath, merged);
+        savedPath = canonicalSavedPath;
+      } catch (mergeError) {
+        // If merging or writing fails, report error clearly and do not represent overall scan as fully successful
+        savedPath = '';
+        for (const res of results) {
+          if (res.status === 'done') {
+            res.status = 'failed';
+            res.error = `Failed to merge or save SARIF: ${mergeError instanceof Error ? mergeError.message : String(mergeError)}`;
+          }
+        }
+      }
+    }
+
+    return buildSummary(results, savedPath);
   }
 
-  if (sarifLogs.length > 0) {
-    await writeSarifFile(finalOutputPath, mergeSarif(sarifLogs));
-  }
-
-  const totalCounts = results.reduce(
-    (total, result) => ({
-      high: total.high + result.counts.high,
-      medium: total.medium + result.counts.medium,
-      low: total.low + result.counts.low
-    }),
-    { high: 0, medium: 0, low: 0 }
-  );
-
-  const totalDurationSec = results.reduce(
-    (max, result) => Math.max(max, result.durationSec),
-    0
-  );
-
-  return {
-    tools: results,
-    totalCounts,
-    totalDurationSec,
-    savedPath
-  };
-}
-
- 
-      
-  
   // Preserved test / mock simulation path (used by automated tests with speedMultiplier)
   const speed = options?.speedMultiplier ?? (envSpeed && !Number.isNaN(envSpeed) ? envSpeed : 10);
   const tickIntervalMs = Math.max(10, Math.round(1000 / speed));
@@ -339,22 +332,8 @@ export async function runScan(
   });
 
   const toolResults = await Promise.all(toolPromises);
+  const anyDone = toolResults.some((t) => t.status === 'done');
+  const simSavedPath = anyDone ? (options?.outputPath ?? './results/result.sarif') : '';
 
-  const totalCounts: SeverityCounts = toolResults.reduce(
-    (acc, cur) => ({
-      high: acc.high + cur.counts.high,
-      medium: acc.medium + cur.counts.medium,
-      low: acc.low + cur.counts.low
-    }),
-    { high: 0, medium: 0, low: 0 }
-  );
-
-  const totalDurationSec = toolResults.reduce((max, cur) => Math.max(max, cur.durationSec), 0);
-
-  return {
-    tools: toolResults,
-    totalCounts,
-    totalDurationSec,
-    savedPath: './results/result.sarif'
-  };
+  return buildSummary(toolResults, simSavedPath);
 }

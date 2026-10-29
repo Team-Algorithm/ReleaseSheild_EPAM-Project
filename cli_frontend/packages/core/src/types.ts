@@ -40,6 +40,7 @@ export interface ScanOptions {
   speedMultiplier?: number;
   abortSignal?: AbortSignal;
   targetPath?: string;
+  outputPath?: string;
   sarifFiles?: Record<ToolName, string>;
 }
 

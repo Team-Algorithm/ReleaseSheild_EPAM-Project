@@ -70,8 +70,6 @@ Once the terminal interface loads, try the following commands:
 | Command | Description |
 |---|---|
 | `/help` | Display list of all available commands |
-| `/repo` | View currently selected repository path |
-| `/repo <path-or-url>` | Select a local folder or clone a remote GitHub URL |
 | `/tools` | Show status of configured security scanners |
 | `/scan` | Open interactive checklist to select tools & run simulated scan |
 | `/scan --tools trivy,semgrep` | Skip checklist and scan with specific tools |

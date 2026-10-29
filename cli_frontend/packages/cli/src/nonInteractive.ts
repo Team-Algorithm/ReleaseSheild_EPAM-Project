@@ -1,7 +1,5 @@
-import * as path from 'path';
-import * as fs from 'fs';
 import type { ToolName, ScanSummary } from "@releaseshield/core";
-import { runScan, isGitUrl, cloneGitRepo } from "@releaseshield/core";
+import { runScan } from "@releaseshield/core";
 
 export interface CliScanArgs {
   repo?: string;
@@ -86,41 +84,9 @@ function validateTool(val: string): ToolName | undefined {
 export async function runNonInteractiveScan(
   options: CliScanArgs,
 ): Promise<number> {
-  let targetPath = options.repo;
-
-  if (options.repo) {
-    if (isGitUrl(options.repo)) {
-      const cloneRes = cloneGitRepo(options.repo);
-      if (!cloneRes.success || !cloneRes.path) {
-        process.stderr.write(
-          `Error: Failed to clone remote repository ${options.repo}: ${cloneRes.error || "unknown error"}\n`,
-        );
-        return 1;
-      }
-      targetPath = cloneRes.path;
-    } else {
-      const resolved = path.resolve(options.repo);
-      try {
-        const stat = fs.statSync(resolved);
-        if (!stat.isDirectory()) {
-          process.stderr.write(
-            `Error: Repository path is not a directory: ${options.repo}\n`,
-          );
-          return 1;
-        }
-        targetPath = resolved;
-      } catch {
-        process.stderr.write(
-          `Error: Repository path does not exist: ${options.repo}\n`,
-        );
-        return 1;
-      }
-    }
-  }
-
   const summary: ScanSummary = await runScan(options.tools, undefined, {
     failTool: options.failTool,
-    targetPath,
+    targetPath: options.repo,
   });
 
   if (options.json) {

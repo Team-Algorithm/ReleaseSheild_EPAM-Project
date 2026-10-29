@@ -99,6 +99,13 @@ export async function runNonInteractiveScan(
         `  ${t.tool}: ${t.status} (${t.durationSec.toFixed(1)}s)\n`,
       );
     }
+    const totalFindings =
+      summary.totalCounts.high +
+      summary.totalCounts.medium +
+      summary.totalCounts.low;
+    process.stdout.write(
+      `Findings: ${totalFindings} total (High: ${summary.totalCounts.high}, Medium: ${summary.totalCounts.medium}, Low: ${summary.totalCounts.low})\n`,
+    );
     process.stdout.write(`Total time: ${summary.totalDurationSec}s\n`);
     if (summary.savedPath) {
       process.stdout.write(`Saved: ${summary.savedPath}\n`);

@@ -121,8 +121,11 @@ export function registerDefaultCommands(
   registry.register({
     name: 'scan',
     description: 'Run a security scan with selected tools',
-    usage: '/scan [--tools trivy,semgrep] [--fail <tool>]',
+    usage: '/scan [path] [--tools trivy,gitleaks] [--fail <tool>]',
     handler: (cmd) => {
+      // Positional argument: target path to scan (if provided)
+      const targetPath = cmd.args.length > 0 ? cmd.args[0] : undefined;
+
       // Parse --tools flag
       let preselectedTools: ToolName[] | undefined;
       const toolsFlag = cmd.flags['tools'];
@@ -154,6 +157,7 @@ export function registerDefaultCommands(
 
       ctx.setOutput(
         <ScanScreen
+          targetPath={targetPath}
           preselectedTools={preselectedTools}
           failTool={failTool}
           onComplete={(summary) => {

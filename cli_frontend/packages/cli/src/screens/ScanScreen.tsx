@@ -15,7 +15,7 @@ interface ToolSelection {
 
 const ALL_TOOLS: ToolSelection[] = [
   { name: 'trivy', label: 'Trivy', selected: true },
-  { name: 'semgrep', label: 'Semgrep', selected: true },
+  { name: 'semgrep', label: 'Semgrep', selected: false },
   { name: 'gitleaks', label: 'Gitleaks', selected: true }
 ];
 
@@ -26,6 +26,7 @@ interface ToolState {
 }
 
 export interface ScanScreenProps {
+  targetPath?: string;
   preselectedTools?: ToolName[];
   failTool?: ToolName;
   onComplete: (summary: ScanSummary) => void;
@@ -34,6 +35,7 @@ export interface ScanScreenProps {
 }
 
 export function ScanScreen({
+  targetPath,
   preselectedTools,
   failTool,
   onComplete,
@@ -96,6 +98,7 @@ export function ScanScreen({
       };
 
       runScan(selectedTools, handleUpdate, {
+        targetPath,
         failTool,
         abortSignal: controller.signal
       }).then((result) => {
@@ -106,7 +109,7 @@ export function ScanScreen({
         }
       });
     },
-    [failTool, onComplete]
+    [targetPath, failTool, onComplete]
   );
 
   // Auto-start if tools were preselected

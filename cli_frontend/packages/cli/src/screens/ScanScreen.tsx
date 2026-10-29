@@ -26,6 +26,7 @@ interface ToolState {
 }
 
 export interface ScanScreenProps {
+  targetPath?: string;
   preselectedTools?: ToolName[];
   failTool?: ToolName;
   onComplete: (summary: ScanSummary) => void;
@@ -34,6 +35,7 @@ export interface ScanScreenProps {
 }
 
 export function ScanScreen({
+  targetPath,
   preselectedTools,
   failTool,
   onComplete,
@@ -96,6 +98,7 @@ export function ScanScreen({
       };
 
       runScan(selectedTools, handleUpdate, {
+        targetPath,
         failTool,
         abortSignal: controller.signal
       }).then((result) => {
@@ -106,7 +109,7 @@ export function ScanScreen({
         }
       });
     },
-    [failTool, onComplete]
+    [targetPath, failTool, onComplete]
   );
 
   // Auto-start if tools were preselected
@@ -177,7 +180,7 @@ export function ScanScreen({
     return (
       <Box flexDirection="column">
         <Text bold color="cyan">
-          Scanning…
+          Scanning… {targetPath ? `(${targetPath})` : ''}
         </Text>
         <Box flexDirection="column" marginTop={1}>
           {Object.entries(toolStates).map(([toolName, state]) => {
@@ -191,7 +194,7 @@ export function ScanScreen({
                       <Spinner type="dots" />
                     </Text>
                   </Box>
-                ) : state.status === 'done' ? (
+                ) : state.status === 'done' || state.status === 'issues_found' ? (
                   <Text color="green">{'✓ '}</Text>
                 ) : state.status === 'failed' ? (
                   <Text color="red">{'✗ '}</Text>
@@ -206,7 +209,7 @@ export function ScanScreen({
                     </Text>
                     <Text>{state.elapsedSec.toFixed(1)}s</Text>
                   </>
-                ) : state.status === 'done' ? (
+                ) : state.status === 'done' || state.status === 'issues_found' ? (
                   <>
                     <Text color="green">
                       {'done'.padEnd(statusColWidth)}

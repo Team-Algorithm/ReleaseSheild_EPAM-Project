@@ -1,5 +1,6 @@
 import { spawn } from "child_process";
 import * as path from "path";
+import * as fsSync from "fs";
 import * as fs from "fs/promises";
 import type {
   ToolName,
@@ -12,11 +13,60 @@ import type {
 import { readSarifFile, countFindings } from "../sarif/index.js";
 
 /**
+ * Builds an augmented environment for scanner subprocesses.
+ * - Forces UTF-8 encoding on Windows to prevent Python charmap/UnicodeEncodeErrors
+ * - Ensures standard Windows Python Scripts directory is reachable on PATH
+ */
+export function getAugmentedEnv(): NodeJS.ProcessEnv {
+  const env: NodeJS.ProcessEnv = {
+    ...process.env,
+    PYTHONIOENCODING: "utf-8",
+    PYTHONUTF8: "1",
+  };
+
+  if (process.platform === "win32") {
+    const localAppData = process.env.LOCALAPPDATA || "";
+    const candidateDirs = [
+      path.join(localAppData, "Programs", "Python", "Python313", "Scripts"),
+      path.join(
+        localAppData,
+        "Microsoft",
+        "WinGet",
+        "Packages",
+        "AquaSecurity.Trivy_Microsoft.Winget.Source_8wekyb3d8bbwe"
+      ),
+      path.join(
+        localAppData,
+        "Microsoft",
+        "WinGet",
+        "Packages",
+        "Gitleaks.Gitleaks_Microsoft.Winget.Source_8wekyb3d8bbwe"
+      ),
+      path.join(localAppData, "Microsoft", "WinGet", "Links"),
+    ];
+
+    const pathKey =
+      Object.keys(env).find((k) => k.toLowerCase() === "path") || "PATH";
+    let currentPath = env[pathKey] || "";
+
+    for (const candidate of candidateDirs) {
+      if (candidate && !currentPath.includes(candidate) && fsSync.existsSync(candidate)) {
+        currentPath = `${candidate};${currentPath}`;
+      }
+    }
+    env[pathKey] = currentPath;
+  }
+
+  return env;
+}
+
+/**
  * Base abstract class for security scanner tool runners.
  */
 export abstract class BaseToolRunner implements ToolRunner {
   abstract readonly name: ToolName;
   abstract readonly executable: string;
+  spawnFn: typeof spawn = spawn;
 
   /**
    * Checks whether the tool CLI is installed and accessible on PATH.
@@ -24,12 +74,13 @@ export abstract class BaseToolRunner implements ToolRunner {
   async isAvailable(): Promise<boolean> {
     return new Promise<boolean>((resolve) => {
       try {
-        const proc = spawn(this.executable, ["--version"], {
+        const proc = this.spawnFn(this.executable, ["--version"], {
           shell: true,
           stdio: "ignore",
+          env: getAugmentedEnv(),
         });
         proc.on("error", () => resolve(false));
-        proc.on("close", (code) => resolve(code === 0));
+        proc.on("close", (code: number | null) => resolve(code === 0));
       } catch {
         resolve(false);
       }
@@ -55,9 +106,10 @@ export abstract class BaseToolRunner implements ToolRunner {
       let timedOut = false;
       let timeoutId: NodeJS.Timeout | undefined;
 
-      const proc = spawn(this.executable, args, {
+      const proc = this.spawnFn(this.executable, args, {
         shell: true,
         stdio: ["ignore", "pipe", "pipe"],
+        env: getAugmentedEnv(),
       });
 
       if (options.timeoutMs && options.timeoutMs > 0) {
@@ -97,7 +149,7 @@ export abstract class BaseToolRunner implements ToolRunner {
         }
 
         const durationSec = Number(
-          ((Date.now() - startTime) / 1000).toFixed(1),
+          ((Date.now() - startTime) / 1000).toFixed(1)
         );
         const code = exitCode ?? 1;
 
@@ -133,6 +185,29 @@ export abstract class BaseToolRunner implements ToolRunner {
             exitCode: code,
             durationSec,
             error: `${this.name} not found`,
+            counts: { high: 0, medium: 0, low: 0 },
+          });
+        }
+
+        // Semgrep and Gitleaks return exit code 1 when findings are present; exit >= 2 represents execution errors.
+        // Trivy returns 0 on successful scan; non-zero represents errors.
+        const isAcceptableExitCode =
+          code === 0 ||
+          ((this.name === "semgrep" || this.name === "gitleaks") && code === 1);
+
+        if (!isAcceptableExitCode) {
+          await fs.rm(options.outputPath, { force: true });
+          const diag = stderrOutput.trim() || stdoutOutput.trim();
+          const error = diag
+            ? `${this.name} failed (exit ${code}): ${diag}`
+            : `${this.name} exited with error code ${code}`;
+
+          return resolve({
+            tool: this.name,
+            status: "failed",
+            exitCode: code,
+            durationSec,
+            error,
             counts: { high: 0, medium: 0, low: 0 },
           });
         }
@@ -204,10 +279,20 @@ export class TrivyRunner extends BaseToolRunner {
  */
 export class SemgrepRunner extends BaseToolRunner {
   readonly name: ToolName = "semgrep";
-  readonly executable = "semgrep";
+  readonly executable = process.env.SEMGREP_PATH || "semgrep";
 
   buildArgs(targetPath: string, outputPath: string): string[] {
-    return ["scan", "--sarif", "--output", outputPath, targetPath];
+    return [
+      "scan",
+      "--config",
+      "p/default",
+      "--sarif",
+      "--output",
+      outputPath,
+      "--metrics=off",
+      "--disable-version-check",
+      targetPath,
+    ];
   }
 }
 
@@ -216,7 +301,7 @@ export class SemgrepRunner extends BaseToolRunner {
  */
 export class GitleaksRunner extends BaseToolRunner {
   readonly name: ToolName = "gitleaks";
-  readonly executable = "gitleaks";
+  readonly executable = process.env.GITLEAKS_PATH || "gitleaks";
 
   buildArgs(targetPath: string, outputPath: string): string[] {
     return [

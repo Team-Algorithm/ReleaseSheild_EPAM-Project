@@ -53,9 +53,13 @@ describe("Tool Runners Integration Layer", () => {
     const args = runner.buildArgs("./my-repo", "./out.sarif");
     expect(args).toEqual([
       "scan",
+      "--config",
+      "p/default",
       "--sarif",
       "--output",
       "./out.sarif",
+      "--metrics=off",
+      "--disable-version-check",
       "./my-repo",
     ]);
   });

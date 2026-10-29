@@ -68,9 +68,7 @@ export function App() {
     const toolNames = summary.tools.map((t) => t.tool).join(', ');
     setActiveTools(toolNames);
 
-    if (targetPath) {
-      setCurrentRepo(resolveRepoName(targetPath));
-    }
+    setCurrentRepo(resolveRepoName(targetPath));
 
     // Ingest real SARIF findings if a SARIF report was created
     if (summary.savedPath) {

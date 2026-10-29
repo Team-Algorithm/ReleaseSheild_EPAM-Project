@@ -4,6 +4,28 @@ import type { SarifLog } from "../types.js";
 import { assertValidSarif, validateSarifDetailed, SarifValidationError } from "./validator.js";
 
 /**
+ * Normalizes Windows-style backslashes in uri fields to forward slashes
+ * as mandated by SARIF 2.1.0 (Section 3.10.1: URI references SHALL NOT contain backslashes).
+ */
+function normalizeUris(obj: unknown): void {
+  if (!obj || typeof obj !== "object") return;
+  if (Array.isArray(obj)) {
+    for (const item of obj) {
+      normalizeUris(item);
+    }
+  } else {
+    const record = obj as Record<string, unknown>;
+    for (const key of Object.keys(record)) {
+      if (key === "uri" && typeof record[key] === "string") {
+        record[key] = (record[key] as string).replaceAll("\\", "/");
+      } else if (typeof record[key] === "object") {
+        normalizeUris(record[key]);
+      }
+    }
+  }
+}
+
+/**
  * Parses a raw JSON string into a validated SarifLog structure.
  * Distinguishes JSON syntax errors from schema-validation errors.
  */
@@ -16,6 +38,8 @@ export function parseSarif(jsonString: string): SarifLog {
       `Failed to parse SARIF JSON: ${err instanceof Error ? err.message : String(err)}`
     );
   }
+
+  normalizeUris(parsed);
 
   // Validate against official OASIS SARIF 2.1.0 schema
   const validation = validateSarifDetailed(parsed);

@@ -1,5 +1,7 @@
+import * as fs from "node:fs";
+import * as path from "node:path";
 import type { ToolName, ScanSummary } from "@releaseshield/core";
-import { runScan } from "@releaseshield/core";
+import { runScan, isGitUrl, cloneGitRepo } from "@releaseshield/core";
 
 export interface CliScanArgs {
   repo?: string;
@@ -84,16 +86,34 @@ function validateTool(val: string): ToolName | undefined {
 export async function runNonInteractiveScan(
   options: CliScanArgs,
 ): Promise<number> {
+  let targetRepo = options.repo ?? ".";
+
+  if (options.repo && isGitUrl(options.repo)) {
+    const cloneRes = cloneGitRepo(options.repo);
+    if (!cloneRes.success || !cloneRes.path) {
+      process.stderr.write(`Error: Failed to clone ${options.repo}: ${cloneRes.error}\n`);
+      return 1;
+    }
+    targetRepo = cloneRes.path;
+  } else if (options.repo) {
+    const resolved = path.resolve(options.repo);
+    if (!fs.existsSync(resolved)) {
+      process.stderr.write(`Error: Repository path does not exist: ${options.repo}\n`);
+      return 1;
+    }
+    targetRepo = resolved;
+  }
+
   const summary: ScanSummary = await runScan(options.tools, undefined, {
     failTool: options.failTool,
-    targetPath: options.repo,
+    targetPath: targetRepo,
   });
 
   if (options.json) {
     // Output valid JSON with no colors to stdout
     process.stdout.write(JSON.stringify(summary, null, 2) + "\n");
   } else {
-    process.stdout.write(`Scan completed for ${options.repo ?? "."}\n`);
+    process.stdout.write(`Scan completed for ${targetRepo}\n`);
     for (const t of summary.tools) {
       process.stdout.write(
         `  ${t.tool}: ${t.status} (${t.durationSec.toFixed(1)}s)\n`,

@@ -30,6 +30,11 @@ export function App() {
   const [lastSummary, setLastSummary] = useState<ScanSummary | null>(null);
   const [lastFindings, setLastFindings] = useState<Finding[]>([]);
   const [activeTools, setActiveTools] = useState<string>('trivy, semgrep, gitleaks');
+  const [currentRepo, setCurrentRepo] = useState<string>(() =>
+    typeof process !== 'undefined' && process.env.RELEASESHIELD_REPO
+      ? process.env.RELEASESHIELD_REPO
+      : '.'
+  );
 
   const handleScanComplete = useCallback((summary: ScanSummary) => {
     setLastSummary(summary);
@@ -62,10 +67,12 @@ export function App() {
       setPromptDisabled,
       onScanComplete: handleScanComplete,
       getLastSummary: () => lastSummary,
-      getLastFindings: () => lastFindings
+      getLastFindings: () => lastFindings,
+      getCurrentRepo: () => currentRepo,
+      setCurrentRepo: (repo: string) => setCurrentRepo(repo)
     });
     return reg;
-  }, [exit, handleScanComplete, lastSummary, lastFindings]);
+  }, [exit, handleScanComplete, lastSummary, lastFindings, currentRepo]);
 
   const handleCommandSubmit = (input: string) => {
     const parsed = parseCommand(input);
@@ -88,11 +95,6 @@ export function App() {
       );
     }
   };
-
-  const currentRepo =
-    typeof process !== 'undefined' && process.env.RELEASESHIELD_REPO
-      ? process.env.RELEASESHIELD_REPO
-      : '.';
 
   return (
     <Box flexDirection="column" paddingX={1} width="100%">

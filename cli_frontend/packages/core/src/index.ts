@@ -6,3 +6,4 @@ export * from "./sarif.js";
 export * from "./tools.js";
 export * from "./findings.js";
 export * from "./fakeScan.js";
+export * from "./repo.js";

@@ -51,10 +51,6 @@ export abstract class BaseToolRunner implements ToolRunner {
     return new Promise<ToolRunOutput>((resolve) => {
       let procError: string | undefined;
 
-
-      console.log("[DEBUG] Trivy executable:", this.executable);
-      console.log("[DEBUG] Trivy arguments:", args);
-
       const proc = spawn(this.executable, args, {
         shell: true,
         stdio: ["ignore", "pipe", "pipe"],
@@ -154,13 +150,11 @@ export abstract class BaseToolRunner implements ToolRunner {
  */
 export class TrivyRunner extends BaseToolRunner {
   readonly name: ToolName = "trivy";
-  readonly executable = process.env.TRIVY_PATH || 'trivy';
+  readonly executable = process.env.TRIVY_PATH || "trivy";
 
   buildArgs(targetPath: string, outputPath: string): string[] {
     return [
       "fs",
-      "--scanners",
-      "vuln",
       "--format",
       "sarif",
       "--output",

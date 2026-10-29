@@ -1,8 +1,10 @@
 import React from 'react';
+import * as path from 'path';
+import * as fs from 'fs';
 import { Box, Text } from 'ink';
 import type { CommandRegistry } from './registry.js';
 import type { ToolName, ScanSummary, Finding } from '@releaseshield/core';
-import { filterFindings } from '@releaseshield/core';
+import { filterFindings, isGitUrl, cloneGitRepo } from '@releaseshield/core';
 import { HelpScreen } from '../screens/HelpScreen.js';
 import { ScanScreen } from '../screens/ScanScreen.js';
 import { ResultsScreen } from '../screens/ResultsScreen.js';
@@ -10,6 +12,7 @@ import { FindingsScreen } from '../screens/FindingsScreen.js';
 
 declare const process: {
   exit?: (code?: number) => void;
+  env?: Record<string, string | undefined>;
 };
 
 export interface CommandHandlerContext {
@@ -20,6 +23,8 @@ export interface CommandHandlerContext {
   onScanComplete: (summary: ScanSummary) => void;
   getLastSummary: () => ScanSummary | null;
   getLastFindings?: () => Finding[];
+  getCurrentRepo?: () => string;
+  setCurrentRepo?: (repo: string) => void;
 }
 
 export function registerDefaultCommands(
@@ -33,6 +38,106 @@ export function registerDefaultCommands(
     usage: '/help',
     handler: () => {
       ctx.setOutput(<HelpScreen commands={registry.getAll()} />);
+    }
+  });
+
+  // /repo — select or inspect target repository
+  registry.register({
+    name: 'repo',
+    description: 'View or set the target repository path to scan',
+    usage: '/repo [path-or-github-url]',
+    handler: (cmd) => {
+      const arg = cmd.args[0];
+      if (!arg) {
+        const current = ctx.getCurrentRepo ? ctx.getCurrentRepo() : '.';
+        ctx.setOutput(
+          <Box flexDirection="column">
+            <Text bold color="cyan">
+              Selected Repository:
+            </Text>
+            <Text>  {current}</Text>
+            <Box marginTop={1}>
+              <Text dimColor>Usage: /repo &lt;local-directory-or-github-url&gt;</Text>
+            </Box>
+          </Box>
+        );
+        return;
+      }
+
+      if (isGitUrl(arg)) {
+        ctx.setOutput(
+          <Box flexDirection="column">
+            <Text color="yellow">Cloning remote repository {arg}...</Text>
+          </Box>
+        );
+        const cloneRes = cloneGitRepo(arg);
+        if (!cloneRes.success || !cloneRes.path) {
+          ctx.setOutput(
+            <Box flexDirection="column">
+              <Text color="red">
+                Failed to clone repository: {cloneRes.error || 'Unknown error'}
+              </Text>
+            </Box>
+          );
+          return;
+        }
+
+        ctx.setCurrentRepo?.(cloneRes.path);
+        if (typeof process !== 'undefined' && process.env) {
+          process.env.RELEASESHIELD_REPO = cloneRes.path;
+        }
+
+        ctx.setOutput(
+          <Box flexDirection="column">
+            <Text color="green">Repository cloned and selected:</Text>
+            <Text bold>  {cloneRes.path}</Text>
+          </Box>
+        );
+        return;
+      }
+
+      const resolved = path.resolve(arg);
+      if (!fs.existsSync(resolved)) {
+        ctx.setOutput(
+          <Box flexDirection="column">
+            <Text color="red">Path does not exist: {resolved}</Text>
+          </Box>
+        );
+        return;
+      }
+
+      try {
+        const stat = fs.statSync(resolved);
+        if (!stat.isDirectory()) {
+          ctx.setOutput(
+            <Box flexDirection="column">
+              <Text color="red">Path is not a directory: {resolved}</Text>
+            </Box>
+          );
+          return;
+        }
+      } catch (err) {
+        ctx.setOutput(
+          <Box flexDirection="column">
+            <Text color="red">
+              Cannot access path: {err instanceof Error ? err.message : String(err)}
+            </Text>
+          </Box>
+        );
+        return;
+      }
+
+      ctx.setCurrentRepo?.(resolved);
+      if (typeof process !== 'undefined' && process.env) {
+        process.env.RELEASESHIELD_REPO = resolved;
+      }
+
+      ctx.setOutput(
+        <Box flexDirection="column">
+          <Text color="green">Repository set to:</Text>
+          <Text bold>  {resolved}</Text>
+        </Box>
+      );
     }
   });
 
@@ -152,8 +257,11 @@ export function registerDefaultCommands(
         }
       }
 
+      const targetPath = ctx.getCurrentRepo ? ctx.getCurrentRepo() : '.';
+
       ctx.setOutput(
         <ScanScreen
+          targetPath={targetPath}
           preselectedTools={preselectedTools}
           failTool={failTool}
           onComplete={(summary) => {

@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { runScan, TOOL_CONFIGS } from "../src/fakeScan.js";
+import { runScan, TOOL_CONFIGS } from "../src/scan.js";
 import type { ToolUpdate } from "../src/types.js";
 
 describe("runScan Engine", () => {

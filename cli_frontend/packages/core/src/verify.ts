@@ -1,4 +1,4 @@
-import { runScan } from "./fakeScan.js";
+import { runScan } from "./scan.js";
 import {
   validateSarif,
   parseSarif,
@@ -6,7 +6,7 @@ import {
   extractFindings,
   mergeSarif,
 } from "./sarif.js";
-import { getToolRunner } from "./tools.js";
+import { getToolRunner } from "./Scanner/tools.js";
 import type { SarifLog } from "./types.js";
 
 async function main() {

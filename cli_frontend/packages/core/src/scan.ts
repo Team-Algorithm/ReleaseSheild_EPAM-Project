@@ -2,7 +2,7 @@ import path from 'node:path';
 import * as fs from 'node:fs/promises';
 import {
   getToolRunner
-} from './tools.js';
+} from './Scanner/tools.js';
 
 import {
   readSarifFile,

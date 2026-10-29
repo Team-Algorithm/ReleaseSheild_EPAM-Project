@@ -8,8 +8,8 @@ import type {
   ToolRunOptions,
   ToolRunOutput,
   SeverityCounts,
-} from "./types.js";
-import { readSarifFile, countFindings } from "./sarif.js";
+} from "../types.js";
+import { readSarifFile, countFindings } from "../sarif.js";
 
 /**
  * Base abstract class for security scanner tool runners.

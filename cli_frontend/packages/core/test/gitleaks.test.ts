@@ -8,8 +8,8 @@ import {
 // ------------------------------------------------------------------
 // Mock the tools module (provides getToolRunner & checkToolAvailability)
 // ------------------------------------------------------------------
-vi.mock('../src/tools.js', async () => {
-  const actual = await import('../src/tools.js');
+vi.mock('../src/Scanner/tools.js', async () => {
+  const actual = await import('../src/Scanner/tools.js');
   return {
     ...actual,
     getToolRunner: vi.fn(),
@@ -18,7 +18,7 @@ vi.mock('../src/tools.js', async () => {
 });
 
 // Import the mocked symbols after the vi.mock call so that Vitest applies the mock.
-import { getToolRunner, checkToolAvailability } from '../src/tools.js';
+import { getToolRunner, checkToolAvailability } from '../src/Scanner/tools.js';
 
 afterEach(() => {
   vi.resetAllMocks();

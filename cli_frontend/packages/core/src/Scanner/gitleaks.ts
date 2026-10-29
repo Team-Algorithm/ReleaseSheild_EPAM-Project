@@ -1,4 +1,4 @@
-import { getToolRunner, checkToolAvailability } from "../tools.js";
+import { getToolRunner, checkToolAvailability } from "./tools.js";
 
 import type { ToolRunOptions, ToolRunOutput } from "../types.js";
 

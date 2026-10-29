@@ -4,7 +4,7 @@ import {
   TrivyRunner,
   SemgrepRunner,
   GitleaksRunner,
-} from "../src/tools.js";
+} from "../src/Scanner/tools.js";
 
 describe("Tool Runners Integration Layer", () => {
   it("retrieves runner instances for all supported tools", () => {

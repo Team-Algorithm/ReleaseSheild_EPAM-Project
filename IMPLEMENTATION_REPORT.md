@@ -245,3 +245,4 @@ When a security scanner is absent on the host environment:
 | **SARIF Pipeline** | ✅ Fully Implemented | Ingests, merges, and validates SARIF 2.1.0 reports |
 | **Test Coverage** | ✅ 54 / 54 Tests Passing | Covers repository commands, argument builders, and SARIF ingestion |
 | **Type Safety & Build** | ✅ 0 Errors | Clean TypeScript build across `@releaseshield/core` and `@releaseshield/cli` |
+

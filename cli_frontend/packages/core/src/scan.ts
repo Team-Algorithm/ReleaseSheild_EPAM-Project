@@ -1,5 +1,6 @@
 import path from 'node:path';
 import * as fs from 'node:fs/promises';
+import * as fsSync from 'node:fs';
 import {
   getToolRunner
 } from './Scanner/tools.js';
@@ -22,7 +23,28 @@ import type {
 
 declare const process: {
   env: Record<string, string | undefined>;
+  cwd: () => string;
 };
+
+export function getCanonicalDefaultSavedPath(): string {
+  if (fsSync.existsSync(path.resolve(process.cwd(), 'results/.gitkeep'))) {
+    return './results/result.sarif';
+  }
+  if (fsSync.existsSync(path.resolve(process.cwd(), 'cli_frontend/results/.gitkeep'))) {
+    return './cli_frontend/results/result.sarif';
+  }
+  return './results/result.sarif';
+}
+
+export function getCanonicalDefaultToolPath(tool: ToolName): string {
+  if (fsSync.existsSync(path.resolve(process.cwd(), 'results/.gitkeep'))) {
+    return `./results/${tool}.sarif`;
+  }
+  if (fsSync.existsSync(path.resolve(process.cwd(), 'cli_frontend/results/.gitkeep'))) {
+    return `./cli_frontend/results/${tool}.sarif`;
+  }
+  return `./results/${tool}.sarif`;
+}
 
 export const TOOL_CONFIGS: Record<ToolName, { durationSec: number; counts: SeverityCounts }> = {
   trivy: {
@@ -60,7 +82,7 @@ export async function runScan(
   // Normal production scan path: no fake finding counts, no artificial delays, no fabricated durations
   if (!isSimulation) {
     const targetPath = path.resolve(options?.targetPath ?? '.');
-    const canonicalSavedPath = options?.outputPath ?? './results/result.sarif';
+    const canonicalSavedPath = options?.outputPath ?? getCanonicalDefaultSavedPath();
     const finalOutputPath = path.resolve(canonicalSavedPath);
 
     // Prevent an old report from being mistaken for the current scan.
@@ -70,7 +92,7 @@ export async function runScan(
       tools.map(async (tool): Promise<ToolResult> => {
         const startTime = Date.now();
         const outputPath = path.resolve(
-          options?.sarifFiles?.[tool] ?? `./results/${tool}.sarif`
+          options?.sarifFiles?.[tool] ?? getCanonicalDefaultToolPath(tool)
         );
 
         onUpdate?.({
@@ -188,7 +210,7 @@ export async function runScan(
 
       const reportPath = path.resolve(
         options?.sarifFiles?.[result.tool] ??
-          `./results/${result.tool}.sarif`
+          getCanonicalDefaultToolPath(result.tool)
       );
 
       try {
@@ -333,7 +355,7 @@ export async function runScan(
 
   const toolResults = await Promise.all(toolPromises);
   const anyDone = toolResults.some((t) => t.status === 'done');
-  const simSavedPath = anyDone ? (options?.outputPath ?? './results/result.sarif') : '';
+  const simSavedPath = anyDone ? (options?.outputPath ?? getCanonicalDefaultSavedPath()) : '';
 
   return buildSummary(toolResults, simSavedPath);
 }

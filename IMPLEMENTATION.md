@@ -1,6 +1,5 @@
 # ReleaseShield AI — Implementation Report
 
-> **Project Location:** `C:\Users\ankit\Desktop\ReleaseSheild_EPAM-Project`  
 > **Status:** Completed, Verified & Ready for Submission  
 > **Language:** English (Formal Technical Documentation)
 

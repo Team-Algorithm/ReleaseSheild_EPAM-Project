@@ -27,22 +27,10 @@ declare const process: {
 };
 
 export function getCanonicalDefaultSavedPath(): string {
-  if (fsSync.existsSync(path.resolve(process.cwd(), 'results/.gitkeep'))) {
-    return './results/result.sarif';
-  }
-  if (fsSync.existsSync(path.resolve(process.cwd(), 'cli_frontend/results/.gitkeep'))) {
-    return './cli_frontend/results/result.sarif';
-  }
   return './results/result.sarif';
 }
 
 export function getCanonicalDefaultToolPath(tool: ToolName): string {
-  if (fsSync.existsSync(path.resolve(process.cwd(), 'results/.gitkeep'))) {
-    return `./results/${tool}.sarif`;
-  }
-  if (fsSync.existsSync(path.resolve(process.cwd(), 'cli_frontend/results/.gitkeep'))) {
-    return `./cli_frontend/results/${tool}.sarif`;
-  }
   return `./results/${tool}.sarif`;
 }
 

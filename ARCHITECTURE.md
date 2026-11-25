@@ -110,7 +110,7 @@ ReleaseShield AI is organized as a modular TypeScript monorepo with strict separ
 ```
 
 ### Step 1: Process Entry & Flag Parsing (`index.tsx` & `nonInteractive.ts`)
-1. Node.js executes `cli_frontend/packages/cli/src/index.tsx`.
+1. Node.js executes `packages/cli/src/index.tsx`.
 2. `parseCliArgs(process.argv)` evaluates flags and subcommands:
    - `scan <target>`: Triggers automated/headless execution.
    - `--tools <trivy,semgrep,gitleaks|all>`: Selects security scanners.
@@ -355,7 +355,7 @@ Semgrep         10        23     2      35
 Gitleaks         3         0     0       3
 Total          105        23     2     130   total time 42s
 
-Saved: ./cli_frontend/results/result.sarif
+Saved: ./results/result.sarif
 ```
 
 ---
@@ -411,7 +411,7 @@ Machine-readable output piped directly into build runners:
     "low": 2
   },
   "totalDurationSec": 41.7,
-  "savedPath": "./cli_frontend/results/result.sarif"
+  "savedPath": "./results/result.sarif"
 }
 ```
 

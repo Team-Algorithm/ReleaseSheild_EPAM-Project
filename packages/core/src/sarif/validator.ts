@@ -38,9 +38,8 @@ function resolveSchemaPath(): string {
     // Relative to src/sarif or dist/sarif
     path.resolve(currentDir, "../../schemas/sarif-schema-2.1.0.json"),
     path.resolve(currentDir, "../schemas/sarif-schema-2.1.0.json"),
-    // Relative to current working directory (e.g. cli_frontend or workspace root)
+    // Relative to current working directory (workspace root)
     path.resolve(process.cwd(), "packages/core/schemas/sarif-schema-2.1.0.json"),
-    path.resolve(process.cwd(), "cli_frontend/packages/core/schemas/sarif-schema-2.1.0.json"),
   ];
 
   for (const candidate of candidates) {

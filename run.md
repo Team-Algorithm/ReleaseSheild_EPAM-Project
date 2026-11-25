@@ -17,26 +17,20 @@ This guide walks you through setting up dependencies and launching the ReleaseSh
 From the project root:
 
 ```bash
-cd cli_frontend && npm install && npm run dev
+npm install && npm run dev
 ```
 
 ---
 
 ## 🛠 Step-by-Step Instructions
 
-### Step 1: Open Terminal & Navigate to `cli_frontend`
-
-```bash
-cd cli_frontend
-```
-
-### Step 2: Install Workspace Dependencies
+### Step 1: Install Workspace Dependencies
 
 ```bash
 npm install
 ```
 
-### Step 3: Launch the CLI
+### Step 2: Launch the CLI
 
 #### Option A: Development Mode (Fastest — Instant Launch via `tsx`)
 ```bash

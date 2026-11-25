@@ -17,9 +17,15 @@ htmlcov/
 # macOS
 .DS_Store
 
+# Node.js dependencies and build artifacts
+node_modules/
+dist/
+*.tsbuildinfo
+
 # Generated scan reports and temporary scan artifacts
-cli_frontend/results/*.sarif
-cli_frontend/results/*.tmp
-cli_frontend/results/*.sarif.tmp
-!cli_frontend/results/.gitkeep
+results/*.sarif
+results/*.tmp
+results/*.sarif.tmp
+!results/.gitkeep
+
 

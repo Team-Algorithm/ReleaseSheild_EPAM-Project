@@ -75,7 +75,7 @@ export function mergeSarif(sarifLogs: SarifLog[]): SarifLog {
  */
 export function buildSummary(
   toolResults: ToolResult[],
-  savedPath = "./results/result.sarif"
+  savedPath = "./packages/core/results/result.sarif"
 ): ScanSummary {
   const totalCounts: SeverityCounts = toolResults.reduce(
     (acc, cur) => ({

@@ -3,28 +3,28 @@ import * as fs from "node:fs/promises";
 import * as fsSync from "node:fs";
 import * as path from "node:path";
 import { fileURLToPath } from "node:url";
-import { runScan } from "../src/scan.js";
-import * as toolsModule from "../src/Scanner/tools.js";
-import * as sarifModule from "../src/sarif/index.js";
+import { runScan } from "../../packages/core/src/scan.js";
+import * as toolsModule from "../../packages/core/src/Scanner/tools.js";
+import * as sarifModule from "../../packages/core/src/sarif/index.js";
 import {
   readSarifFile,
   writeSarifFile,
   extractFindings,
   countFindings,
   sarifLevelToSeverity,
-} from "../src/sarif/index.js";
+} from "../../packages/core/src/sarif/index.js";
 import {
   filterFindings,
   sortFindings,
   paginateFindings,
-} from "../src/findings.js";
+} from "../../packages/core/src/findings.js";
 import type {
   ToolRunner,
   ToolRunOptions,
   ToolRunOutput,
   SarifLog,
   ScanOptions,
-} from "../src/types.js";
+} from "../../packages/core/src/types.js";
 
 const VALID_TRIVY_REPORT: SarifLog = {
   $schema: "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
@@ -812,21 +812,21 @@ describe("Step 9: Automated and End-to-End Test Suite", () => {
   // Scenario 18: No imports or references depend on the deleted src/sarif.ts
   it("Scenario 18: No imports or references depend on the deleted src/sarif.ts across the codebase", async () => {
     const coreIndex = await fs.readFile(
-      path.resolve(fileURLToPath(import.meta.url), "../../src/index.ts"),
+      path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../packages/core/src/index.ts"),
       "utf-8"
     );
     expect(coreIndex).not.toContain("./sarif.js");
     expect(coreIndex).toContain("./sarif/index.js");
 
     // Verify deleted file is really gone
-    const oldFilePath = path.resolve(fileURLToPath(import.meta.url), "../../src/sarif.ts");
+    const oldFilePath = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../packages/core/src/sarif.ts");
     expect(fsSync.existsSync(oldFilePath)).toBe(false);
   });
 
   // Scenario 19: New module exports work from their actual callers
   it("Scenario 19: New module exports work from their actual callers", async () => {
     // Check that core public exports expose all expected members from sarif modules
-    const core = await import("../src/index.js");
+    const core = await import("../../packages/core/src/index.js");
 
     expect(typeof core.runScan).toBe("function");
     expect(typeof core.validateSarif).toBe("function");

@@ -2,7 +2,7 @@ import { describe, it, expect } from "vitest";
 import {
   CommandRegistry,
   levenshteinDistance,
-} from "../src/commands/registry.js";
+} from "../../packages/cli/src/commands/registry.js";
 
 describe("levenshteinDistance", () => {
   it("calculates distance between identical strings as 0", () => {

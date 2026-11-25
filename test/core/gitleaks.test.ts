@@ -3,13 +3,13 @@ import {
   buildGitleaksArgs,
   runGitleaks,
   isGitleaksAvailable,
-} from '../src/Scanner/gitleaks.js';
+} from '../../packages/core/src/Scanner/gitleaks.js';
 
 // ------------------------------------------------------------------
 // Mock the tools module (provides getToolRunner & checkToolAvailability)
 // ------------------------------------------------------------------
-vi.mock('../src/Scanner/tools.js', async () => {
-  const actual = await import('../src/Scanner/tools.js');
+vi.mock('../../packages/core/src/Scanner/tools.js', async () => {
+  const actual = await import('../../packages/core/src/Scanner/tools.js');
   return {
     ...actual,
     getToolRunner: vi.fn(),
@@ -18,7 +18,7 @@ vi.mock('../src/Scanner/tools.js', async () => {
 });
 
 // Import the mocked symbols after the vi.mock call so that Vitest applies the mock.
-import { getToolRunner, checkToolAvailability } from '../src/Scanner/tools.js';
+import { getToolRunner, checkToolAvailability } from '../../packages/core/src/Scanner/tools.js';
 
 afterEach(() => {
   vi.resetAllMocks();

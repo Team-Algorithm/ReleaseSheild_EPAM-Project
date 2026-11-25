@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
 import * as fs from "node:fs/promises";
 import * as path from "node:path";
-import { runScan, TOOL_CONFIGS } from "../src/scan.js";
-import * as toolsModule from "../src/Scanner/tools.js";
-import * as sarifModule from "../src/sarif/index.js";
-import { readSarifFile } from "../src/sarif/parser.js";
-import type { ToolUpdate, ToolRunner, ToolRunOptions, ToolRunOutput } from "../src/types.js";
+import { runScan, TOOL_CONFIGS } from "../../packages/core/src/scan.js";
+import * as toolsModule from "../../packages/core/src/Scanner/tools.js";
+import * as sarifModule from "../../packages/core/src/sarif/index.js";
+import { readSarifFile } from "../../packages/core/src/sarif/parser.js";
+import type { ToolUpdate, ToolRunner, ToolRunOptions, ToolRunOutput } from "../../packages/core/src/types.js";
 
 const VALID_TRIVY_SARIF = {
   $schema: "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
@@ -52,9 +52,9 @@ const VALID_GITLEAKS_SARIF = {
 };
 
 describe("runScan Engine", () => {
-  const resultSarifPath = path.resolve("./results/result.sarif");
-  const trivySarifPath = path.resolve("./results/trivy.sarif");
-  const gitleaksSarifPath = path.resolve("./results/gitleaks.sarif");
+  const resultSarifPath = path.resolve("./packages/core/results/result.sarif");
+  const trivySarifPath = path.resolve("./packages/core/results/trivy.sarif");
+  const gitleaksSarifPath = path.resolve("./packages/core/results/gitleaks.sarif");
 
   const cleanFiles = async () => {
     await fs.rm(resultSarifPath, { force: true });
@@ -105,7 +105,7 @@ describe("runScan Engine", () => {
     expect(summary.totalCounts.high).toBe(
       TOOL_CONFIGS.trivy.counts.high + TOOL_CONFIGS.gitleaks.counts.high
     );
-    expect(summary.savedPath).toBe("./results/result.sarif");
+    expect(summary.savedPath).toBe("./packages/core/results/result.sarif");
 
     expect(updates.length).toBeGreaterThan(0);
     expect(updates.some((u) => u.tool === "trivy" && u.status === "running")).toBe(true);
@@ -129,7 +129,7 @@ describe("runScan Engine", () => {
     expect(gitleaks?.counts).toEqual({ high: 0, medium: 0, low: 0 });
 
     expect(summary.totalCounts.high).toBe(TOOL_CONFIGS.trivy.counts.high);
-    expect(summary.savedPath).toBe("./results/result.sarif");
+    expect(summary.savedPath).toBe("./packages/core/results/result.sarif");
   });
 
   it("returns empty savedPath in simulation when all tools fail", async () => {
@@ -223,7 +223,7 @@ describe("runScan Engine", () => {
     expect(gitleaks?.error).toBe("Gitleaks process crashed");
 
     expect(summary.totalCounts.high).toBe(1);
-    expect(summary.savedPath).toBe("./results/result.sarif");
+    expect(summary.savedPath).toBe("./packages/core/results/result.sarif");
 
     // Check merged report contains only Trivy run
     const merged = await readSarifFile(resultSarifPath);
@@ -262,7 +262,7 @@ describe("runScan Engine", () => {
 
     expect(summary.tools.every((t) => t.status === "done")).toBe(true);
     expect(summary.totalCounts.high).toBe(2);
-    expect(summary.savedPath).toBe("./results/result.sarif");
+    expect(summary.savedPath).toBe("./packages/core/results/result.sarif");
 
     const merged = await readSarifFile(resultSarifPath);
     expect(merged.runs.length).toBe(2);
@@ -314,7 +314,7 @@ describe("runScan Engine", () => {
     expect(gitleaks?.counts.high).toBe(1);
 
     expect(summary.totalCounts.high).toBe(1);
-    expect(summary.savedPath).toBe("./results/result.sarif");
+    expect(summary.savedPath).toBe("./packages/core/results/result.sarif");
 
     const merged = await readSarifFile(resultSarifPath);
     expect(merged.runs.length).toBe(1);
@@ -322,9 +322,9 @@ describe("runScan Engine", () => {
   });
 
   it("publishes to custom outputPath and cleans up only the intended target", async () => {
-    const customDir = path.resolve("./results/custom-output-test");
+    const customDir = path.resolve("./packages/core/results/custom-output-test");
     const customReportPath = path.join(customDir, "custom-result.sarif");
-    const unrelatedReportPath = path.resolve("./results/unrelated-keeper.sarif");
+    const unrelatedReportPath = path.resolve("./packages/core/results/unrelated-keeper.sarif");
 
     await fs.mkdir(customDir, { recursive: true });
     await fs.writeFile(customReportPath, "stale-custom-data", "utf-8");

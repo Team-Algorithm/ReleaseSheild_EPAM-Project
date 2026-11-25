@@ -5,8 +5,8 @@ import {
   paginateFindings,
   getSeverityWeight,
   EMPTY_FINDINGS,
-} from "../src/findings.js";
-import type { Finding } from "../src/types.js";
+} from "../../packages/core/src/findings.js";
+import type { Finding } from "../../packages/core/src/types.js";
 
 describe("Findings Processing & Utilities", () => {
   const sampleFindings: Finding[] = [

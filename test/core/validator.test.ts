@@ -7,8 +7,8 @@ import {
   validateSarifDetailed,
   assertValidSarif,
   SarifValidationError,
-} from "../src/sarif/validator.js";
-import type { SarifLog } from "../src/types.js";
+} from "../../packages/core/src/sarif/validator.js";
+import type { SarifLog } from "../../packages/core/src/types.js";
 
 describe("SARIF Official Schema Validator (validator.ts)", () => {
   const minimalValidSarif: SarifLog = {

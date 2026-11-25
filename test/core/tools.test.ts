@@ -6,7 +6,7 @@ import {
   TrivyRunner,
   SemgrepRunner,
   GitleaksRunner,
-} from "../src/Scanner/tools.js";
+} from "../../packages/core/src/Scanner/tools.js";
 
 describe("Tool Runners Integration Layer", () => {
   const tmpDir = path.join(process.cwd(), ".tmp-test-tools");

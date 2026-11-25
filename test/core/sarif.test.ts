@@ -11,8 +11,8 @@ import {
   buildSummary,
   readSarifFile,
   writeSarifFile,
-} from "../src/sarif/index.js";
-import type { SarifLog } from "../src/types.js";
+} from "../../packages/core/src/sarif/index.js";
+import type { SarifLog } from "../../packages/core/src/types.js";
 
 describe("SARIF Ingestion & Processing Layer", () => {
   const tmpDir = path.join(process.cwd(), ".tmp-test-sarif");
@@ -199,7 +199,7 @@ describe("SARIF Ingestion & Processing Layer", () => {
 
     expect(summary.totalCounts).toEqual({ high: 3, medium: 3, low: 3 });
     expect(summary.totalDurationSec).toBe(15.2);
-    expect(summary.savedPath).toBe("./results/result.sarif");
+    expect(summary.savedPath).toBe("./packages/core/results/result.sarif");
   });
 
   it("reads and writes SARIF files from disk", async () => {

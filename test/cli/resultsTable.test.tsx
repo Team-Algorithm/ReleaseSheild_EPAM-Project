@@ -1,7 +1,7 @@
 import React from 'react';
 import { describe, it, expect } from 'vitest';
 import { render } from 'ink-testing-library';
-import { ResultsScreen } from '../src/screens/ResultsScreen.js';
+import { ResultsScreen } from '../../packages/cli/src/screens/ResultsScreen.js';
 import type { ScanSummary } from '@releaseshield/core';
 
 describe('Results Table (Ink UI)', () => {
@@ -28,7 +28,7 @@ describe('Results Table (Ink UI)', () => {
     ],
     totalCounts: { high: 26, medium: 35, low: 15 },
     totalDurationSec: 41.7,
-    savedPath: './results/result.sarif'
+    savedPath: './packages/core/results/result.sarif'
   };
 
   it('renders table columns, tool rows, totals, and saved SARIF path', () => {
@@ -65,7 +65,7 @@ describe('Results Table (Ink UI)', () => {
     expect(frame).toContain('total time 42s');
 
     // Check saved path footer
-    expect(frame).toContain('Saved: ./results/result.sarif');
+    expect(frame).toContain('Saved: ./packages/core/results/result.sarif');
   });
 
   it('drops Medium and Low columns on narrow terminals (<80 cols)', () => {
@@ -95,7 +95,7 @@ describe('Results Table (Ink UI)', () => {
       ],
       totalCounts: { high: 0, medium: 0, low: 0 },
       totalDurationSec: 1.0,
-      savedPath: './results/result.sarif'
+      savedPath: './packages/core/results/result.sarif'
     };
 
     const { lastFrame } = render(<ResultsScreen summary={failedSummary} columns={80} />);

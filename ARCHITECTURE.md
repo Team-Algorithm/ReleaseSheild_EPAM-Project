@@ -71,7 +71,7 @@ ReleaseShield AI is organized as a modular TypeScript monorepo with strict separ
 |  |                                                                             |  |
 |  |  3. writeSarifFile()                                                        |  |
 |  |     -> Atomic write via temporary staging file (.tmp)                       |  |
-|  |     -> Output: results/result.sarif                                         |  |
+|  |     -> Output: packages/core/results/result.sarif                           |  |
 |  |                                                                             |  |
 |  |  4. findings.ts                                                             |  |
 |  |     -> Rule metadata extraction & severity normalization (High/Med/Low)     |  |
@@ -195,7 +195,7 @@ The scan screen operates a 3-phase state machine:
 `runScan(tools, onUpdate, options)` is the central coordinator of ReleaseShield:
 
 1. **Output Path Resolution**:
-   - Identifies report destinations (`results/result.sarif`, `results/<tool>.sarif`).
+   - Identifies report destinations (`packages/core/results/result.sarif`, `packages/core/results/<tool>.sarif`).
    - Recursively removes stale report files from prior runs using `fs.rm(..., { force: true })` to eliminate false positives.
 2. **Subprocess Environment Augmentation (`getAugmentedEnv()`)**:
    - **Windows UTF-8 Encoding**: Injects `PYTHONUTF8=1` and `PYTHONIOENCODING=utf-8` to prevent Python-based scanners (Semgrep) from crashing on Unicode/emojis (e.g., rule metadata `💎`).
@@ -355,7 +355,7 @@ Semgrep         10        23     2      35
 Gitleaks         3         0     0       3
 Total          105        23     2     130   total time 42s
 
-Saved: ./results/result.sarif
+Saved: ./packages/core/results/result.sarif
 ```
 
 ---
@@ -411,7 +411,7 @@ Machine-readable output piped directly into build runners:
     "low": 2
   },
   "totalDurationSec": 41.7,
-  "savedPath": "./results/result.sarif"
+  "savedPath": "./packages/core/results/result.sarif"
 }
 ```
 

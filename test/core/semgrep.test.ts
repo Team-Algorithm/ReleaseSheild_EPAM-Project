@@ -3,24 +3,24 @@ import * as fs from "node:fs/promises";
 import * as fsSync from "node:fs";
 import * as path from "node:path";
 import { EventEmitter } from "node:events";
-import * as toolsModule from "../src/Scanner/tools.js";
+import * as toolsModule from "../../packages/core/src/Scanner/tools.js";
 import {
   SemgrepRunner,
   getToolRunner,
   checkToolAvailability,
-} from "../src/Scanner/tools.js";
+} from "../../packages/core/src/Scanner/tools.js";
 import {
   isSemgrepAvailable,
   buildSemgrepArgs,
   runSemgrep,
-} from "../src/Scanner/semgrep.js";
-import { runScan } from "../src/scan.js";
+} from "../../packages/core/src/Scanner/semgrep.js";
+import { runScan } from "../../packages/core/src/scan.js";
 import {
   readSarifFile,
   countFindings,
   extractFindings,
-} from "../src/sarif/index.js";
-import type { ToolRunOptions, ToolRunOutput, SarifLog } from "../src/types.js";
+} from "../../packages/core/src/sarif/index.js";
+import type { ToolRunOptions, ToolRunOutput, SarifLog } from "../../packages/core/src/types.js";
 
 const VALID_SEMGREP_SARIF: SarifLog = {
   $schema: "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",

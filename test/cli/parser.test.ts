@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { parseCommand } from "../src/commands/parser.js";
+import { parseCommand } from "../../packages/cli/src/commands/parser.js";
 
 describe("parseCommand", () => {
   it("handles empty or whitespace string", () => {

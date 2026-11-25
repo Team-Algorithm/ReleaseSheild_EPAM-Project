@@ -23,9 +23,9 @@ dist/
 *.tsbuildinfo
 
 # Generated scan reports and temporary scan artifacts
-results/*.sarif
-results/*.tmp
-results/*.sarif.tmp
-!results/.gitkeep
+packages/core/results/*.sarif
+packages/core/results/*.tmp
+packages/core/results/*.sarif.tmp
+!packages/core/results/.gitkeep
 
 

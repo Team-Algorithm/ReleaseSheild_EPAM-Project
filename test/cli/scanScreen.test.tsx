@@ -1,13 +1,13 @@
 import React from 'react';
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render } from 'ink-testing-library';
-import { ScanScreen } from '../src/screens/ScanScreen.js';
+import { ScanScreen } from '../../packages/cli/src/screens/ScanScreen.js';
 import * as core from '@releaseshield/core';
 import type { ScanSummary } from '@releaseshield/core';
-import { CommandRegistry } from '../src/commands/registry.js';
-import { registerDefaultCommands } from '../src/commands/handlers.js';
-import { parseCommand } from '../src/commands/parser.js';
-import { resolveRepoName } from '../src/App.js';
+import { CommandRegistry } from '../../packages/cli/src/commands/registry.js';
+import { registerDefaultCommands } from '../../packages/cli/src/commands/handlers.js';
+import { parseCommand } from '../../packages/cli/src/commands/parser.js';
+import { resolveRepoName } from '../../packages/cli/src/App.js';
 
 describe('ScanScreen and interactive scan command', () => {
   const dummySummary: ScanSummary = {
@@ -27,7 +27,7 @@ describe('ScanScreen and interactive scan command', () => {
     ],
     totalCounts: { high: 0, medium: 0, low: 0 },
     totalDurationSec: 1.5,
-    savedPath: './results/result.sarif'
+    savedPath: './packages/core/results/result.sarif'
   };
 
   beforeEach(() => {

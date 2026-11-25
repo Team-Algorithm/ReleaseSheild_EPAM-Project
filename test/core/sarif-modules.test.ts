@@ -13,8 +13,8 @@ import {
   buildSummary,
   SarifExtractionError,
   SarifMergeError,
-} from "../src/sarif/index.js";
-import type { SarifLog } from "../types.js";
+} from "../../packages/core/src/sarif/index.js";
+import type { SarifLog } from "../../packages/core/src/types.js";
 
 describe("SARIF Modular Architecture (parser, findings, merger)", () => {
   const tmpDir = path.join(process.cwd(), ".tmp-test-sarif-modules");
@@ -193,7 +193,7 @@ describe("SARIF Modular Architecture (parser, findings, merger)", () => {
 
       expect(summary.totalCounts).toEqual({ high: 3, medium: 1, low: 3 });
       expect(summary.totalDurationSec).toBe(12.5);
-      expect(summary.savedPath).toBe("./results/result.sarif");
+      expect(summary.savedPath).toBe("./packages/core/results/result.sarif");
     });
   });
 });

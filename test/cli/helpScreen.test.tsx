@@ -1,8 +1,8 @@
 import React from 'react';
 import { describe, it, expect } from 'vitest';
 import { render } from 'ink-testing-library';
-import { HelpScreen } from '../src/screens/HelpScreen.js';
-import type { CommandEntry } from '../src/commands/registry.js';
+import { HelpScreen } from '../../packages/cli/src/screens/HelpScreen.js';
+import type { CommandEntry } from '../../packages/cli/src/commands/registry.js';
 
 describe('Help Screen (Ink UI)', () => {
   const sampleCommands: CommandEntry[] = [

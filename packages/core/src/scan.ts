@@ -27,11 +27,11 @@ declare const process: {
 };
 
 export function getCanonicalDefaultSavedPath(): string {
-  return './results/result.sarif';
+  return './packages/core/results/result.sarif';
 }
 
 export function getCanonicalDefaultToolPath(tool: ToolName): string {
-  return `./results/${tool}.sarif`;
+  return `./packages/core/results/${tool}.sarif`;
 }
 
 export const TOOL_CONFIGS: Record<ToolName, { durationSec: number; counts: SeverityCounts }> = {

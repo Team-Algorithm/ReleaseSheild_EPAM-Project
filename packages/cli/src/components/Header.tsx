@@ -112,13 +112,6 @@ export function Header() {
           </Box>
         </Box>
       )}
-
-      {/* Sub-header title & version */}
-      <Box flexDirection="row">
-        <Text bold>ReleaseShield AI</Text>
-        <Text dimColor={!isNoColor}> v0.1</Text>
-      </Box>
-      <Text dimColor={!isNoColor}>Scan, merge and triage security findings</Text>
     </Box>
   );
 }

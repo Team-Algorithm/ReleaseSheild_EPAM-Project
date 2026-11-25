@@ -1,11 +1,6 @@
 import type { Finding, Severity } from "./types.js";
 
 /**
- * Empty findings list - used as default clean state before scans.
- */
-export const EMPTY_FINDINGS: readonly Finding[] = Object.freeze([]);
-
-/**
  * Maps severity names to numerical weights for sorting purposes.
  */
 export function getSeverityWeight(severity: Severity): number {

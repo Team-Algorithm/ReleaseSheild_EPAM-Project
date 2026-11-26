@@ -58,22 +58,44 @@ export function PromptBox({ onSubmit, isDisabled = false }: PromptBoxProps) {
   };
 
   return (
-    <Box borderStyle="round" paddingX={1} marginY={0}>
-      <Text color="cyan">{'> '}</Text>
-      {isDisabled ? (
-        <Text dimColor>{value || ' '}</Text>
-      ) : (
-        <TextInput
-          value={value}
-          onChange={(val) => {
-            setValue(val);
-            if (historyIndex !== -1) {
-              setHistoryIndex(-1);
-            }
-          }}
-          onSubmit={handleSubmit}
-        />
-      )}
+    <Box flexDirection="column" width="100%">
+      {/* Sleek Input Card container inspired by OpenCode */}
+      <Box
+        flexDirection="column"
+        borderStyle="round"
+        borderColor="gray"
+        paddingX={1}
+        paddingY={0}
+        width="100%"
+      >
+        <Box flexDirection="row" alignItems="center">
+          <Text color="cyan" bold>{'│ '}</Text>
+          {isDisabled ? (
+            <Text dimColor>{value || ' '}</Text>
+          ) : (
+            <TextInput
+              placeholder='Enter command or path to scan... e.g. /scan ./src'
+              value={value}
+              onChange={(val) => {
+                setValue(val);
+                if (historyIndex !== -1) {
+                  setHistoryIndex(-1);
+                }
+              }}
+              onSubmit={handleSubmit}
+            />
+          )}
+        </Box>
+        <Box flexDirection="row" marginTop={0} paddingLeft={2}>
+          <Text color="blue" bold>Engine </Text>
+          <Text dimColor>· Trivy (SCA) + Semgrep (SAST) + Gitleaks (Secrets)</Text>
+        </Box>
+      </Box>
+
+      {/* Right-aligned shortcut key: ctrl+c exit ONLY */}
+      <Box justifyContent="flex-end" width="100%" marginTop={0}>
+        <Text dimColor>ctrl+c exit</Text>
+      </Box>
     </Box>
   );
 }

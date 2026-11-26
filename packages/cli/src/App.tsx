@@ -9,7 +9,6 @@ import { StatusBar } from './components/StatusBar.js';
 import { MainArea } from './components/MainArea.js';
 import { PromptBox } from './components/PromptBox.js';
 import { HintLine } from './components/HintLine.js';
-import { Divider } from './components/Divider.js';
 import { parseCommand } from './commands/parser.js';
 import { CommandRegistry } from './commands/registry.js';
 import { registerDefaultCommands } from './commands/handlers.js';
@@ -40,6 +39,22 @@ export function resolveRepoName(targetPath?: string): string {
   }
 }
 
+export function resolveGitBranch(): string {
+  try {
+    const headPath = path.resolve('.git', 'HEAD');
+    if (fsSync.existsSync(headPath)) {
+      const head = fsSync.readFileSync(headPath, 'utf8').trim();
+      if (head.startsWith('ref: refs/heads/')) {
+        return head.replace('ref: refs/heads/', '');
+      }
+      return head.slice(0, 7);
+    }
+  } catch {
+    // fallback
+  }
+  return 'main';
+}
+
 export function App() {
   const { exit } = useApp();
 
@@ -57,18 +72,20 @@ export function App() {
   const [lastScan, setLastScan] = useState<string>('none');
   const [lastSummary, setLastSummary] = useState<ScanSummary | null>(null);
   const [lastFindings, setLastFindings] = useState<Finding[]>([]);
-  const [activeTools, setActiveTools] = useState<string>('trivy, semgrep, gitleaks');
-  const [currentRepo, setCurrentRepo] = useState<string>(() => resolveRepoName());
+  const [currentRepoPath, setCurrentRepoPath] = useState<string>(() => {
+    return typeof process !== 'undefined' && process.cwd ? process.cwd() : '.';
+  });
+  const [currentBranch] = useState<string>(() => resolveGitBranch());
 
   const handleScanComplete = useCallback((summary: ScanSummary, targetPath?: string) => {
     setLastSummary(summary);
     const now = new Date();
     const timeStr = now.toLocaleTimeString('en-US', { hour12: false });
     setLastScan(timeStr);
-    const toolNames = summary.tools.map((t) => t.tool).join(', ');
-    setActiveTools(toolNames);
 
-    setCurrentRepo(resolveRepoName(targetPath));
+    if (targetPath) {
+      setCurrentRepoPath(path.resolve(targetPath));
+    }
 
     // Ingest real SARIF findings if a SARIF report was created
     if (summary.savedPath) {
@@ -78,7 +95,6 @@ export function App() {
           setLastFindings(findings);
         })
         .catch(() => {
-          // If no SARIF file on disk, findings remain empty
           setLastFindings([]);
         });
     }
@@ -108,7 +124,7 @@ export function App() {
     } else {
       const closest = registry.suggestClosest(parsed.name);
       setOutputNode(
-        <Box flexDirection="column">
+        <Box flexDirection="column" marginY={1}>
           <Text color="red">Unknown command: /{parsed.name}</Text>
           {closest ? (
             <Text color="yellow">Did you mean /{closest.name}?</Text>
@@ -121,15 +137,12 @@ export function App() {
   };
 
   return (
-    <Box flexDirection="column" paddingX={1} width="100%">
+    <Box flexDirection="column" paddingX={2} width="100%">
       <Header />
-      <Divider />
-      <StatusBar repo={currentRepo} tools={activeTools} lastScan={lastScan} />
-      <Divider />
       <MainArea lastCommandOutput={outputNode} />
-      <Divider />
       <PromptBox onSubmit={handleCommandSubmit} isDisabled={promptDisabled} />
       <HintLine />
+      <StatusBar repo={currentRepoPath} branch={currentBranch} />
     </Box>
   );
 }

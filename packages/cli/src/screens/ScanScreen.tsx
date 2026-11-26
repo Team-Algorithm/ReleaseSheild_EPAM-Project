@@ -15,7 +15,7 @@ interface ToolSelection {
 
 const ALL_TOOLS: ToolSelection[] = [
   { name: 'trivy', label: 'Trivy', selected: true },
-  { name: 'semgrep', label: 'Semgrep', selected: true },
+  { name: 'semgrep', label: 'Semgrep', selected: false },
   { name: 'gitleaks', label: 'Gitleaks', selected: true }
 ];
 

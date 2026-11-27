@@ -122,10 +122,9 @@ export function FindingsScreen({
         <Text dimColor={!isNoColor}>
           {findings.length === 0
             ? '0 findings'
-            : `page ${currentPage} of ${totalPages} (${findings.length} total)`}
-          {totalPages > 1 && isNavigating
-            ? '   [n] next   [p] prev   [Enter/Esc] exit'
-            : ''}
+            : totalPages === 1
+            ? `Showing all ${findings.length} findings`
+            : `Page ${currentPage} of ${totalPages} (${findings.length} findings total)   [n] next   [p] prev   [Enter/Esc] exit navigation`}
         </Text>
       </Box>
     </Box>

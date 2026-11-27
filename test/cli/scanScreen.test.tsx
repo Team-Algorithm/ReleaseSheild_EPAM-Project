@@ -38,7 +38,7 @@ describe('ScanScreen and interactive scan command', () => {
     vi.restoreAllMocks();
   });
 
-  it('renders default tool selection checklist with Trivy and Gitleaks selected, and Semgrep unselected', () => {
+  it('renders default tool selection checklist with Trivy, Semgrep, and Gitleaks selected', () => {
     const { lastFrame } = render(
       <ScanScreen
         onComplete={() => {}}
@@ -50,7 +50,7 @@ describe('ScanScreen and interactive scan command', () => {
 
     expect(frame).toContain('Select tools');
     expect(frame).toContain('[✓] Trivy');
-    expect(frame).toContain('[ ] Semgrep');
+    expect(frame).toContain('[✓] Semgrep');
     expect(frame).toContain('[✓] Gitleaks');
   });
 
@@ -92,11 +92,11 @@ describe('ScanScreen and interactive scan command', () => {
       />
     );
 
-    // Press return/enter to start scan with default selections (trivy and gitleaks)
+    // Press return/enter to start scan with default selections (trivy, semgrep, and gitleaks)
     stdin.write('\r');
 
     expect(runScanSpy).toHaveBeenCalledWith(
-      ['trivy', 'gitleaks'],
+      ['trivy', 'semgrep', 'gitleaks'],
       expect.any(Function),
       expect.objectContaining({
         targetPath: './my-repo'

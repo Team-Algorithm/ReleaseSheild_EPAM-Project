@@ -314,6 +314,28 @@ export interface Finding {
 
 ---
 
+### Step 8: Normalization, Fingerprinting & Repository-Scoped Deduplication (Sprint 2)
+
+After `writeSarifFile()` writes `result.sarif`, `runScan()` executes the Sprint 2 findings pipeline:
+
+1. **Normalization (`packages/core/src/Normalization/normalize.ts`)**:
+   - `normalizeSarif()` maps merged SARIF runs into database-aligned `NormalizedFinding[]` records (`normalized-findings.json`).
+2. **Fingerprinting (`packages/core/src/Fingerprinting/fingerprint.ts`)**:
+   - `fingerprintFinding()` attaches deterministic SHA-256 `codeFingerprint` and `issueFingerprint` values (`fingerprinted-findings.json`).
+3. **Deduplication (`packages/core/src/Deduplication/deduplicate.ts`)**:
+   - `deduplicateWithStats()` and `deduplicateFindings()` group findings in memory using a collision-safe repository-scoped composite key (`JSON.stringify([repoId, issueFingerprint])`).
+   - **Repository-Scoped Grouping**: Identical `issueFingerprint` values from different `repoId` values are always kept as separate `DeduplicatedIssue` entries.
+   - **Fallback Fingerprinting**: Missing or blank `issueFingerprint` values are safely generated using `generateIssueFingerprint()` with default guards for optional `evidence` and `normalizedTitle`.
+   - **Severity Aggregation**: Each `DeduplicatedIssue` retains the highest severity across all its occurrences (`critical > high > medium > low > info > unknown`).
+   - **Occurrence Tracking & Immutability**: Each duplicate is recorded in `duplicateFindings` and appended to `issue.occurrences` with its `scanner`, `ruleId`, location, `severity`, `codeFingerprint`, and `evidence`, without mutating input findings.
+   - **Output**: `writeDeduplicatedFindings()` writes `deduplicated-findings.json` alongside `result.sarif`.
+   - **Running Deduplication Tests**:
+     ```bash
+     npx vitest run test/core/deduplication.test.ts
+     ```
+
+---
+
 ## 3. Terminal User Interface Screens & Visuals
 
 ### A. Main Scan Screen (`ScanScreen.tsx`)

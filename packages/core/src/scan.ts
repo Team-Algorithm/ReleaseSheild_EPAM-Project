@@ -11,6 +11,15 @@ import {
   writeSarifFile,
   buildSummary,
 } from './sarif/index.js';
+import {
+  normalizeSarif,
+  writeNormalizedFindings,
+} from './Normalization/normalize.js';
+import { fingerprintFinding } from './Fingerprinting/fingerprint.js';
+import {
+  deduplicateWithStats,
+  writeDeduplicatedFindings,
+} from './Deduplication/deduplicate.js';
 
 import type {
   ToolName,
@@ -72,9 +81,24 @@ export async function runScan(
     const targetPath = path.resolve(options?.targetPath ?? '.');
     const canonicalSavedPath = options?.outputPath ?? getCanonicalDefaultSavedPath();
     const finalOutputPath = path.resolve(canonicalSavedPath);
+    const normalizedOutputPath = path.join(
+      path.dirname(finalOutputPath),
+      'normalized-findings.json'
+    );
+    const fingerprintedOutputPath = path.join(
+      path.dirname(finalOutputPath),
+      'fingerprinted-findings.json'
+    );
+    const deduplicatedOutputPath = path.join(
+      path.dirname(finalOutputPath),
+      'deduplicated-findings.json'
+    );
 
     // Prevent an old report from being mistaken for the current scan.
     await fs.rm(finalOutputPath, { force: true });
+    await fs.rm(normalizedOutputPath, { force: true });
+    await fs.rm(fingerprintedOutputPath, { force: true });
+    await fs.rm(deduplicatedOutputPath, { force: true });
 
     const results = await Promise.all(
       tools.map(async (tool): Promise<ToolResult> => {
@@ -223,6 +247,41 @@ export async function runScan(
       try {
         const merged = mergeSarif(sarifLogs);
         await writeSarifFile(finalOutputPath, merged);
+
+        // Phase 1: Normalization
+        const normalized = normalizeSarif(merged, { repoRoot: targetPath });
+        await writeNormalizedFindings(normalizedOutputPath, normalized);
+
+        // Phase 2: Fingerprinting
+        const fingerprinted = normalized.map(fingerprintFinding);
+
+        // Exclude evidence because Gitleaks evidence may contain secrets.
+        const safeOutput = fingerprinted.map((finding) => ({
+          repoId: finding.repoId,
+          scanner: finding.scanner,
+          ruleId: finding.ruleId,
+          title: finding.title,
+          normalizedTitle: finding.normalizedTitle,
+          severity: finding.severity,
+          filePath: finding.filePath,
+          startLine: finding.startLine,
+          endLine: finding.endLine,
+          startColumn: finding.startColumn,
+          endColumn: finding.endColumn,
+          codeFingerprint: finding.codeFingerprint,
+          issueFingerprint: finding.issueFingerprint,
+        }));
+
+        await fs.writeFile(
+          fingerprintedOutputPath,
+          JSON.stringify(safeOutput, null, 2),
+          'utf8'
+        );
+
+        // Phase 3: Repository-scoped deduplication
+        const deduplicated = deduplicateWithStats(fingerprinted);
+        await writeDeduplicatedFindings(deduplicatedOutputPath, deduplicated);
+
         savedPath = canonicalSavedPath;
       } catch (mergeError) {
         // If merging or writing fails, report error clearly and do not represent overall scan as fully successful

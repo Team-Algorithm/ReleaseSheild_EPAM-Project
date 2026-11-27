@@ -9,3 +9,6 @@ export * from "./Scanner/trivy.js";
 export * from "./Scanner/gitleaks.js";
 export * from "./findings.js";
 export * from "./scan.js";
+export * from "./Normalization/normalize.js";
+export * from "./Fingerprinting/fingerprint.js";
+export * from "./Deduplication/deduplicate.js";

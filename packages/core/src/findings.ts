@@ -1,6 +1,11 @@
 import type { Finding, Severity } from "./types.js";
 
 /**
+ * Immutable empty default findings array.
+ */
+export const EMPTY_FINDINGS: readonly Finding[] = Object.freeze([]);
+
+/**
  * Maps severity names to numerical weights for sorting purposes.
  */
 export function getSeverityWeight(severity: Severity): number {

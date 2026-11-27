@@ -11,6 +11,10 @@ import {
   writeSarifFile,
   buildSummary,
 } from './sarif/index.js';
+import {
+  normalizeSarif,
+  writeNormalizedFindings,
+} from './Normalization/normalize.js';
 
 import type {
   ToolName,
@@ -72,9 +76,14 @@ export async function runScan(
     const targetPath = path.resolve(options?.targetPath ?? '.');
     const canonicalSavedPath = options?.outputPath ?? getCanonicalDefaultSavedPath();
     const finalOutputPath = path.resolve(canonicalSavedPath);
+    const normalizedOutputPath = path.join(
+      path.dirname(finalOutputPath),
+      'normalized-findings.json'
+    );
 
     // Prevent an old report from being mistaken for the current scan.
     await fs.rm(finalOutputPath, { force: true });
+    await fs.rm(normalizedOutputPath, { force: true });
 
     const results = await Promise.all(
       tools.map(async (tool): Promise<ToolResult> => {
@@ -223,6 +232,8 @@ export async function runScan(
       try {
         const merged = mergeSarif(sarifLogs);
         await writeSarifFile(finalOutputPath, merged);
+        const normalized = normalizeSarif(merged, { repoRoot: targetPath });
+        await writeNormalizedFindings(normalizedOutputPath, normalized);
         savedPath = canonicalSavedPath;
       } catch (mergeError) {
         // If merging or writing fails, report error clearly and do not represent overall scan as fully successful

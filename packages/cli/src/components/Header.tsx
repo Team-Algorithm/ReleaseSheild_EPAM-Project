@@ -1,117 +1,68 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Box, Text, useStdout } from 'ink';
 
 const FONT: Record<string, [string, string, string]> = {
-  r: ['█▀▀█', '█   ', '▀   '],
-  e: ['█▀▀█', '█▀▀▀', '▀▀▀▀'],
-  l: ['█ ', '█ ', '▀▀'],
-  a: [' ▀▀█', '█▀▀█', '▀▀▀▀'],
-  s: ['█▀▀▀', '▀▀▀█', '▀▀▀▀'],
-  h: ['█   ', '█▀▀█', '▀  ▀'],
-  i: ['█', '█', '▀'],
-  d: ['   █', '█▀▀█', '▀▀▀▀']
+  R: ['█▀▀█', '█▄▄▀', '▀  ▀'],
+  E: ['█▀▀', '█▀▀', '▀▀▀'],
+  L: ['█  ', '█  ', '▀▀▀'],
+  A: ['█▀▀█', '█▄▄█', '▀  ▀'],
+  S: ['█▀▀', '▀▀█', '▀▀▀'],
+  H: ['█  █', '█▀▀█', '▀  ▀'],
+  I: ['█', '█', '▀'],
+  D: ['█▀▀▄', '█  █', '▀▀▀ '],
+  ' ': ['  ', '  ', '  ']
 };
 
-const LOGO_TEXT = 'releaseshield';
-
-interface GlyphColumn {
-  col: number;
-  r0: string;
-  r1: string;
-  r2: string;
-}
-
-const LOGO_COLUMNS: GlyphColumn[] = [];
-for (const ch of LOGO_TEXT) {
-  const glyph = FONT[ch] || ['   ', '   ', '   '];
-  for (let c = 0; c < glyph[0].length; c++) {
-    LOGO_COLUMNS.push({
-      col: LOGO_COLUMNS.length,
-      r0: glyph[0][c],
-      r1: glyph[1][c],
-      r2: glyph[2][c]
-    });
+function getGlyphRow(text: string, rowIdx: 0 | 1 | 2): string {
+  let s = '';
+  for (const ch of text) {
+    const g = FONT[ch] || ['   ', '   ', '   '];
+    s += g[rowIdx] + ' ';
   }
-  LOGO_COLUMNS.push({ col: LOGO_COLUMNS.length, r0: ' ', r1: ' ', r2: ' ' });
+  return s;
 }
 
-const TOTAL_COLS = LOGO_COLUMNS.length; // ~58 cols
+const SHIELD_R0 = getGlyphRow('RELEASE SHIELD', 0);
+const SHIELD_R1 = getGlyphRow('RELEASE SHIELD', 1);
+const SHIELD_R2 = getGlyphRow('RELEASE SHIELD', 2);
+
+const AI_R0 = getGlyphRow('AI', 0);
+const AI_R1 = getGlyphRow('AI', 1);
+const AI_R2 = getGlyphRow('AI', 2);
 
 export function Header() {
-  const [wavePos, setWavePos] = useState(0);
   const { stdout } = useStdout();
   const terminalWidth = (stdout as any)?.columns ?? process.stdout?.columns ?? 80;
-  const showBanner = terminalWidth >= 62;
-
-  const isNoColor = Boolean(
-    typeof process !== 'undefined' &&
-      process.env.NO_COLOR !== undefined &&
-      process.env.NO_COLOR !== ''
-  );
-
-  useEffect(() => {
-    // Avoid running animation in test environments or when banner is not shown
-    if (
-      (typeof process !== 'undefined' &&
-        (process.env.NODE_ENV === 'test' || process.env.VITEST !== undefined)) ||
-      !showBanner
-    ) {
-      return;
-    }
-
-    const maxCols = TOTAL_COLS + 24;
-    const interval = setInterval(() => {
-      setWavePos((prev) => {
-        if (prev >= maxCols) {
-          clearInterval(interval);
-          return maxCols;
-        }
-        return prev + 1;
-      });
-    }, 45);
-
-    return () => clearInterval(interval);
-  }, [showBanner]);
-
-  const getColColor = (col: number, isMiddle: boolean): string | undefined => {
-    if (isNoColor) return undefined;
-    const dist = Math.abs(col - wavePos);
-    if (dist === 0) return '#ffffff'; // Crest peak
-    if (dist <= 2) return '#e0f2fe'; // Bright white-blue glow
-    if (dist <= 4) return '#38bdf8'; // Electric cyan
-    if (dist <= 7) return '#818cf8'; // Cyber indigo shimmer trail
-    if (dist <= 10) return '#475569'; // Edge falloff
-    return isMiddle ? '#334155' : '#cbd5e1'; // Dark recessed slit in middle vs bright silver caps
-  };
+  const showBanner = terminalWidth >= 70;
 
   return (
-    <Box flexDirection="column" marginY={0}>
-      {/* Animated opencode-style block banner for standard/wide terminals */}
-      {showBanner && (
-        <Box flexDirection="column" marginBottom={1}>
+    <Box flexDirection="column" alignItems="center" width="100%" marginY={1}>
+      {showBanner ? (
+        <Box flexDirection="column" alignItems="center">
           <Box flexDirection="row">
-            {LOGO_COLUMNS.map((item, idx) => (
-              <Text key={`r0-${idx}`} color={getColColor(item.col, false)} bold={Math.abs(item.col - wavePos) <= 2}>
-                {item.r0}
-              </Text>
-            ))}
+            <Text color="#f8fafc">{SHIELD_R0} </Text>
+            <Text color="#38bdf8" bold>{AI_R0}</Text>
           </Box>
           <Box flexDirection="row">
-            {LOGO_COLUMNS.map((item, idx) => (
-              <Text key={`r1-${idx}`} color={getColColor(item.col, true)} bold={Math.abs(item.col - wavePos) <= 2}>
-                {item.r1}
-              </Text>
-            ))}
+            <Text color="#cbd5e1">{SHIELD_R1} </Text>
+            <Text color="#38bdf8" bold>{AI_R1}</Text>
           </Box>
           <Box flexDirection="row">
-            {LOGO_COLUMNS.map((item, idx) => (
-              <Text key={`r2-${idx}`} color={getColColor(item.col, false)} bold={Math.abs(item.col - wavePos) <= 2}>
-                {item.r2}
-              </Text>
-            ))}
+            <Text color="#64748b">{SHIELD_R2} </Text>
+            <Text color="#0284c7">{AI_R2}</Text>
           </Box>
         </Box>
+      ) : (
+        <Box flexDirection="row">
+          <Text bold color="#f8fafc">Release Shield </Text>
+          <Text bold color="#38bdf8">AI</Text>
+        </Box>
       )}
+
+      {/* Clean Subtitle (No duplicate title text) */}
+      <Box marginTop={1}>
+        <Text dimColor>AI-Powered Automated DevSecOps Release Gate & Posture Engine</Text>
+      </Box>
     </Box>
   );
 }

@@ -157,6 +157,7 @@ export function registerDefaultCommands(
 
       ctx.setOutput(
         <ScanScreen
+          key={`scan-${Date.now()}`}
           targetPath={targetPath}
           preselectedTools={preselectedTools}
           failTool={failTool}
@@ -216,6 +217,7 @@ export function registerDefaultCommands(
 
       ctx.setOutput(
         <FindingsScreen
+          key={`findings-${Date.now()}`}
           findings={filtered}
           onPromptDisable={ctx.setPromptDisabled}
         />

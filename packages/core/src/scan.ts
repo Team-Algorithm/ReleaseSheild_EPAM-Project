@@ -27,8 +27,56 @@ import type {
   SeverityCounts,
   ScanSummary,
   ScanOptions,
-  ScanUpdateCallback
+  ScanUpdateCallback,
+  DeduplicationSummary
 } from './types.js';
+
+export function resolveScanRepoId(targetPath: string): string {
+  if (!targetPath || !targetPath.trim()) {
+    return 'unknown-repo';
+  }
+  try {
+    const resolved = path.resolve(targetPath);
+    if (!fsSync.existsSync(resolved)) {
+      const base = path.basename(resolved);
+      return base && base !== '.' && base !== path.sep ? base : 'unknown-repo';
+    }
+
+    let currentDir = fsSync.statSync(resolved).isFile()
+      ? path.dirname(resolved)
+      : resolved;
+
+    let dir = currentDir;
+    while (dir) {
+      if (fsSync.existsSync(path.join(dir, '.git'))) {
+        const repoName = path.basename(dir);
+        if (repoName && repoName !== '.' && repoName !== path.sep) {
+          return repoName;
+        }
+      }
+      const parent = path.dirname(dir);
+      if (parent === dir) break;
+      dir = parent;
+    }
+
+    const base = path.basename(currentDir);
+    if (base && base !== '.' && base !== path.sep) {
+      return base;
+    }
+  } catch {
+    // Fall back to basename of targetPath if stat fails
+  }
+  const fallback = path.basename(path.resolve(targetPath));
+  return fallback && fallback !== '.' && fallback !== path.sep ? fallback : 'unknown-repo';
+}
+
+async function removeFileBestEffort(filePath: string): Promise<void> {
+  try {
+    await fs.rm(filePath, { force: true });
+  } catch {
+    // Best-effort cleanup: ignore cleanup failures so they do not mask scan errors
+  }
+}
 
 declare const process: {
   env: Record<string, string | undefined>;
@@ -94,11 +142,13 @@ export async function runScan(
       'deduplicated-findings.json'
     );
 
-    // Prevent an old report from being mistaken for the current scan.
-    await fs.rm(finalOutputPath, { force: true });
-    await fs.rm(normalizedOutputPath, { force: true });
-    await fs.rm(fingerprintedOutputPath, { force: true });
-    await fs.rm(deduplicatedOutputPath, { force: true });
+    // Prevent an old report from being mistaken for the current scan (best-effort).
+    await Promise.allSettled([
+      removeFileBestEffort(finalOutputPath),
+      removeFileBestEffort(normalizedOutputPath),
+      removeFileBestEffort(fingerprintedOutputPath),
+      removeFileBestEffort(deduplicatedOutputPath),
+    ]);
 
     const results = await Promise.all(
       tools.map(async (tool): Promise<ToolResult> => {
@@ -242,14 +292,19 @@ export async function runScan(
     }
 
     let savedPath = '';
+    let deduplicationSummary: DeduplicationSummary | undefined;
 
     if (sarifLogs.length > 0) {
       try {
         const merged = mergeSarif(sarifLogs);
         await writeSarifFile(finalOutputPath, merged);
 
-        // Phase 1: Normalization
-        const normalized = normalizeSarif(merged, { repoRoot: targetPath });
+        // Phase 1: Normalization (use a single consistent repoId for all runs in this scan)
+        const scanRepoId = resolveScanRepoId(targetPath);
+        const normalized = normalizeSarif(merged, {
+          repoRoot: targetPath,
+          repoId: scanRepoId,
+        });
         await writeNormalizedFindings(normalizedOutputPath, normalized);
 
         // Phase 2: Fingerprinting
@@ -282,8 +337,23 @@ export async function runScan(
         const deduplicated = deduplicateWithStats(fingerprinted);
         await writeDeduplicatedFindings(deduplicatedOutputPath, deduplicated);
 
+        deduplicationSummary = {
+          totalInput: deduplicated.totalInput,
+          uniqueIssues: deduplicated.issues.length,
+          duplicatesRemoved: deduplicated.duplicatesRemoved,
+        };
+
         savedPath = canonicalSavedPath;
       } catch (mergeError) {
+        // Clean up any partial outputs so a failed scan cannot leave stale files on disk (best-effort)
+        await Promise.allSettled([
+          removeFileBestEffort(finalOutputPath),
+          removeFileBestEffort(normalizedOutputPath),
+          removeFileBestEffort(fingerprintedOutputPath),
+          removeFileBestEffort(deduplicatedOutputPath),
+        ]);
+        deduplicationSummary = undefined;
+
         // If merging or writing fails, report error clearly and do not represent overall scan as fully successful
         savedPath = '';
         for (const res of results) {
@@ -295,7 +365,7 @@ export async function runScan(
       }
     }
 
-    return buildSummary(results, savedPath);
+    return buildSummary(results, savedPath, deduplicationSummary);
   }
 
   // Preserved test / mock simulation path (used by automated tests with speedMultiplier)

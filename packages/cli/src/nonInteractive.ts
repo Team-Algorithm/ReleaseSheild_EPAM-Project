@@ -106,6 +106,11 @@ export async function runNonInteractiveScan(
     process.stdout.write(
       `Findings: ${totalFindings} total (High: ${summary.totalCounts.high}, Medium: ${summary.totalCounts.medium}, Low: ${summary.totalCounts.low})\n`,
     );
+    if (summary.deduplication) {
+      process.stdout.write(
+        `Deduplicated: ${summary.deduplication.uniqueIssues} unique issues (${summary.deduplication.duplicatesRemoved} duplicates removed from ${summary.deduplication.totalInput} raw findings)\n`,
+      );
+    }
     process.stdout.write(`Total time: ${summary.totalDurationSec}s\n`);
     if (summary.savedPath) {
       process.stdout.write(`Saved: ${summary.savedPath}\n`);

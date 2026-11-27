@@ -154,6 +154,17 @@ export function ResultsScreen({ summary, columns: propColumns }: ResultsScreenPr
         })()}
       </Box>
 
+      {/* Deduplication summary when available */}
+      {summary.deduplication && (
+        <Box marginTop={1}>
+          <Text dimColor={!isNoColor}>
+            Deduplicated: {summary.deduplication.uniqueIssues} unique issues (
+            {summary.deduplication.duplicatesRemoved} duplicates removed from{' '}
+            {summary.deduplication.totalInput} raw)
+          </Text>
+        </Box>
+      )}
+
       {/* Saved SARIF footer */}
       <Box marginTop={1}>
         {summary.savedPath ? (

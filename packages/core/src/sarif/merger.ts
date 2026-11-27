@@ -4,6 +4,7 @@ import type {
   ToolResult,
   SeverityCounts,
   ScanSummary,
+  DeduplicationSummary,
 } from "../types.js";
 import { assertValidSarif, validateSarifDetailed } from "./validator.js";
 
@@ -75,7 +76,8 @@ export function mergeSarif(sarifLogs: SarifLog[]): SarifLog {
  */
 export function buildSummary(
   toolResults: ToolResult[],
-  savedPath = "./packages/core/results/result.sarif"
+  savedPath = "./packages/core/results/result.sarif",
+  deduplication?: DeduplicationSummary
 ): ScanSummary {
   const totalCounts: SeverityCounts = toolResults.reduce(
     (acc, cur) => ({
@@ -96,6 +98,7 @@ export function buildSummary(
     totalCounts,
     totalDurationSec,
     savedPath,
+    ...(deduplication ? { deduplication } : {}),
   };
 }
 

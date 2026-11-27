@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { existsSync, mkdtempSync, readFileSync, rmSync } from "node:fs";
+import { existsSync, mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import * as fs from "node:fs/promises";
 import { tmpdir } from "node:os";
 import path from "node:path";
@@ -10,9 +10,10 @@ import {
   writeDeduplicatedFindingsSync,
   type FingerprintedFinding,
 } from "../../packages/core/src/Deduplication/deduplicate.js";
+import * as deduplicationModule from "../../packages/core/src/Deduplication/deduplicate.js";
 import { generateIssueFingerprint } from "../../packages/core/src/Fingerprinting/fingerprint.js";
 import type { NormalizedFinding } from "../../packages/core/src/Normalization/normalize.js";
-import { runScan } from "../../packages/core/src/scan.js";
+import { runScan, resolveScanRepoId } from "../../packages/core/src/scan.js";
 import * as toolsModule from "../../packages/core/src/Scanner/tools.js";
 import type { ToolRunner, ToolRunOptions, ToolRunOutput } from "../../packages/core/src/types.js";
 
@@ -402,6 +403,11 @@ describe("Repository-scoped Deduplication (Phase 3)", () => {
       });
 
       expect(summary.savedPath).toBe(customSarifOut);
+      expect(summary.deduplication).toEqual({
+        totalInput: 2,
+        uniqueIssues: 1,
+        duplicatesRemoved: 1,
+      });
 
       const dedupPath = path.join(baseDir, "deduplicated-findings.json");
       expect(existsSync(path.join(baseDir, "normalized-findings.json"))).toBe(true);
@@ -412,11 +418,323 @@ describe("Repository-scoped Deduplication (Phase 3)", () => {
       expect(dedupResult.totalInput).toBe(2);
       expect(dedupResult.duplicatesRemoved).toBe(1);
       expect(dedupResult.uniqueFindings).toHaveLength(1);
+      expect(dedupResult.duplicateFindings).toHaveLength(1);
       expect(dedupResult.issues).toHaveLength(1);
       expect(dedupResult.issues[0].severity).toBe("high");
       expect(dedupResult.issues[0].occurrences).toHaveLength(2);
     } finally {
       rmSync(baseDir, { recursive: true, force: true });
     }
+  });
+
+  it("deduplicates equivalent findings even when SARIF runs have differing originalUriBaseIds, while keeping distinct findings separate", async () => {
+    const baseDir = mkdtempSync(path.join(tmpdir(), "rs-scan-repoid-"));
+    const customSarifOut = path.join(baseDir, "result.sarif");
+
+    const semgrepSarif = {
+      $schema: "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+      version: "2.1.0",
+      runs: [
+        {
+          tool: {
+            driver: {
+              name: "Semgrep OSS",
+              rules: [
+                { id: "js.sql-injection", name: "SQL Injection" },
+                { id: "js.xss-injection", name: "SQL Injection" },
+              ],
+            },
+          },
+          originalUriBaseIds: {
+            ROOTPATH: { uri: "file:///C:/different/root/repo-a/" },
+          },
+          results: [
+            {
+              ruleId: "js.sql-injection",
+              level: "error",
+              message: { text: "SQL Injection" },
+              locations: [
+                {
+                  physicalLocation: {
+                    artifactLocation: { uri: "src/api.ts" },
+                    region: { startLine: 10 },
+                  },
+                },
+              ],
+            },
+            {
+              // Same file and message/title, but different ruleId -> must remain separate
+              ruleId: "js.xss-injection",
+              level: "warning",
+              message: { text: "SQL Injection" },
+              locations: [
+                {
+                  physicalLocation: {
+                    artifactLocation: { uri: "src/api.ts" },
+                    region: { startLine: 15 },
+                  },
+                },
+              ],
+            },
+          ],
+        },
+        {
+          tool: {
+            driver: {
+              name: "Semgrep OSS",
+              rules: [{ id: "js.sql-injection", name: "SQL Injection" }],
+            },
+          },
+          originalUriBaseIds: {
+            ROOTPATH: { uri: "file:///R:/another-name/" },
+          },
+          results: [
+            {
+              // Equivalent to first finding (same scanner, ruleId, file, title) in a run with different originalUriBaseIds
+              ruleId: "js.sql-injection",
+              level: "warning",
+              message: { text: "SQL Injection" },
+              locations: [
+                {
+                  physicalLocation: {
+                    artifactLocation: { uri: "src/api.ts" },
+                    region: { startLine: 25 },
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    try {
+      vi.spyOn(toolsModule, "getToolRunner").mockImplementation((toolName) => ({
+        name: toolName,
+        isAvailable: async () => true,
+        buildArgs: () => [],
+        run: async (options: ToolRunOptions): Promise<ToolRunOutput> => {
+          await fs.mkdir(path.dirname(options.outputPath), { recursive: true });
+          await fs.writeFile(options.outputPath, JSON.stringify(semgrepSarif), "utf-8");
+          return {
+            tool: toolName,
+            status: "done",
+            durationSec: 0.1,
+            counts: { high: 1, medium: 2, low: 0 },
+          };
+        },
+      } as unknown as ToolRunner));
+
+      const summary = await runScan(["semgrep"], undefined, {
+        targetPath: baseDir,
+        outputPath: customSarifOut,
+        sarifFiles: {
+          semgrep: path.join(baseDir, "semgrep.sarif"),
+          trivy: path.join(baseDir, "trivy.sarif"),
+          gitleaks: path.join(baseDir, "gitleaks.sarif"),
+        },
+      });
+
+      const dedupResult = JSON.parse(
+        readFileSync(path.join(baseDir, "deduplicated-findings.json"), "utf8")
+      );
+
+      // Invariants: 3 raw inputs -> 2 unique issues (sql-injection x2 grouped, xss-injection x1 separate)
+      expect(dedupResult.totalInput).toBe(3);
+      expect(dedupResult.uniqueFindings).toHaveLength(2);
+      expect(dedupResult.duplicateFindings).toHaveLength(1);
+      expect(dedupResult.uniqueFindings.length + dedupResult.duplicateFindings.length).toBe(dedupResult.totalInput);
+      expect(dedupResult.issues).toHaveLength(2);
+      expect(dedupResult.duplicatesRemoved).toBe(1);
+      expect(summary.deduplication).toEqual({
+        totalInput: 3,
+        uniqueIssues: 2,
+        duplicatesRemoved: 1,
+      });
+    } finally {
+      rmSync(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it("removes old or partial output files when a scan fails so stale results cannot be reused", async () => {
+    const baseDir = mkdtempSync(path.join(tmpdir(), "rs-scan-stale-"));
+    const customSarifOut = path.join(baseDir, "result.sarif");
+    const normPath = path.join(baseDir, "normalized-findings.json");
+    const fpPath = path.join(baseDir, "fingerprinted-findings.json");
+    const dedupPath = path.join(baseDir, "deduplicated-findings.json");
+
+    const sampleSarif = {
+      $schema: "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+      version: "2.1.0",
+      runs: [
+        {
+          tool: {
+            driver: {
+              name: "gitleaks",
+              rules: [{ id: "generic-api-key", name: "GenericApiKey" }],
+            },
+          },
+          results: [
+            {
+              ruleId: "generic-api-key",
+              level: "error",
+              message: { text: "Secret found" },
+            },
+          ],
+        },
+      ],
+    };
+
+    try {
+      // Seed stale files from a prior run
+      await fs.writeFile(customSarifOut, "stale", "utf-8");
+      await fs.writeFile(normPath, "stale", "utf-8");
+      await fs.writeFile(fpPath, "stale", "utf-8");
+      await fs.writeFile(dedupPath, "stale", "utf-8");
+
+      vi.spyOn(toolsModule, "getToolRunner").mockImplementation((toolName) => ({
+        name: toolName,
+        isAvailable: async () => true,
+        buildArgs: () => [],
+        run: async (options: ToolRunOptions): Promise<ToolRunOutput> => {
+          await fs.mkdir(path.dirname(options.outputPath), { recursive: true });
+          await fs.writeFile(options.outputPath, JSON.stringify(sampleSarif), "utf-8");
+          return {
+            tool: toolName,
+            status: "done",
+            durationSec: 0.1,
+            counts: { high: 1, medium: 0, low: 0 },
+          };
+        },
+      } as unknown as ToolRunner));
+
+      // Simulate failure during deduplication write after SARIF/normalized/fingerprinted were written
+      vi.spyOn(deduplicationModule, "writeDeduplicatedFindings").mockRejectedValueOnce(
+        new Error("Disk full")
+      );
+
+      const summary = await runScan(["gitleaks"], undefined, {
+        targetPath: baseDir,
+        outputPath: customSarifOut,
+        sarifFiles: {
+          gitleaks: path.join(baseDir, "gitleaks.sarif"),
+          trivy: path.join(baseDir, "trivy.sarif"),
+          semgrep: path.join(baseDir, "semgrep.sarif"),
+        },
+      });
+
+      expect(summary.savedPath).toBe("");
+      expect(summary.deduplication).toBeUndefined();
+      expect(summary.tools[0].status).toBe("failed");
+      expect(existsSync(customSarifOut)).toBe(false);
+      expect(existsSync(normPath)).toBe(false);
+      expect(existsSync(fpPath)).toBe(false);
+      expect(existsSync(dedupPath)).toBe(false);
+    } finally {
+      rmSync(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  it("completes best-effort cleanup without masking the scan error when cleanup encounters an error", async () => {
+    const baseDir = mkdtempSync(path.join(tmpdir(), "rs-scan-besteffort-"));
+    const customSarifOut = path.join(baseDir, "result.sarif");
+
+    const sampleSarif = {
+      $schema: "https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json",
+      version: "2.1.0",
+      runs: [
+        {
+          tool: {
+            driver: {
+              name: "gitleaks",
+              rules: [{ id: "generic-api-key", name: "GenericApiKey" }],
+            },
+          },
+          results: [
+            {
+              ruleId: "generic-api-key",
+              level: "error",
+              message: { text: "Secret found" },
+            },
+          ],
+        },
+      ],
+    };
+
+    try {
+      vi.spyOn(toolsModule, "getToolRunner").mockImplementation((toolName) => ({
+        name: toolName,
+        isAvailable: async () => true,
+        buildArgs: () => [],
+        run: async (options: ToolRunOptions): Promise<ToolRunOutput> => {
+          await fs.mkdir(path.dirname(options.outputPath), { recursive: true });
+          await fs.writeFile(options.outputPath, JSON.stringify(sampleSarif), "utf-8");
+          return {
+            tool: toolName,
+            status: "done",
+            durationSec: 0.1,
+            counts: { high: 1, medium: 0, low: 0 },
+          };
+        },
+      } as unknown as ToolRunner));
+
+      // Trigger failure during post-processing to verify error reporting and cleanup
+      vi.spyOn(deduplicationModule, "writeDeduplicatedFindings").mockRejectedValueOnce(
+        new Error("Deduplication disk write failed")
+      );
+
+      const summary = await runScan(["gitleaks"], undefined, {
+        targetPath: baseDir,
+        outputPath: customSarifOut,
+        sarifFiles: {
+          gitleaks: path.join(baseDir, "gitleaks.sarif"),
+          trivy: path.join(baseDir, "trivy.sarif"),
+          semgrep: path.join(baseDir, "semgrep.sarif"),
+        },
+      });
+
+      // Scan reports failure and does not crash or mask the failure
+      expect(summary.savedPath).toBe("");
+      expect(summary.deduplication).toBeUndefined();
+      expect(summary.tools[0].status).toBe("failed");
+      expect(summary.tools[0].error).toContain("Deduplication disk write failed");
+    } finally {
+      rmSync(baseDir, { recursive: true, force: true });
+    }
+  });
+
+  describe("resolveScanRepoId repository identity resolution", () => {
+    it("resolves repository identity from a git directory and nested files/directories", () => {
+      const gitDir = mkdtempSync(path.join(tmpdir(), "rs-git-test-"));
+      try {
+        const dotGit = path.join(gitDir, ".git");
+        mkdirSync(dotGit, { recursive: true });
+        const subDir = path.join(gitDir, "packages", "core");
+        mkdirSync(subDir, { recursive: true });
+        const subFile = path.join(subDir, "index.ts");
+        writeFileSync(subFile, "export const x = 1;");
+
+        const expectedRepo = path.basename(gitDir);
+        expect(resolveScanRepoId(gitDir)).toBe(expectedRepo);
+        expect(resolveScanRepoId(subDir)).toBe(expectedRepo);
+        expect(resolveScanRepoId(subFile)).toBe(expectedRepo);
+      } finally {
+        rmSync(gitDir, { recursive: true, force: true });
+      }
+    });
+
+    it("falls back to directory basename when no .git is found", () => {
+      const plainDir = mkdtempSync(path.join(tmpdir(), "rs-plain-test-"));
+      try {
+        expect(resolveScanRepoId(plainDir)).toBe(path.basename(plainDir));
+      } finally {
+        rmSync(plainDir, { recursive: true, force: true });
+      }
+    });
+
+    it("handles missing or empty paths gracefully", () => {
+      expect(resolveScanRepoId("non-existent-subpath")).toBe("non-existent-subpath");
+      expect(resolveScanRepoId("")).toBe("unknown-repo");
+    });
   });
 });

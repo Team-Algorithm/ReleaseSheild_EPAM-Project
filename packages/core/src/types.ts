@@ -28,11 +28,18 @@ export interface Finding {
   message: string;
 }
 
+export interface DeduplicationSummary {
+  totalInput: number;
+  uniqueIssues: number;
+  duplicatesRemoved: number;
+}
+
 export interface ScanSummary {
   tools: ToolResult[];
   totalCounts: SeverityCounts;
   totalDurationSec: number;
   savedPath: string;
+  deduplication?: DeduplicationSummary;
 }
 
 export interface ScanOptions {

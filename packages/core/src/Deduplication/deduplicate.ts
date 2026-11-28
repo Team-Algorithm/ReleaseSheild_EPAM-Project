@@ -245,20 +245,34 @@ export function deduplicateFindings(
 
 export async function writeDeduplicatedFindings(
   outputPath: string = DEFAULT_DEDUPLICATED_OUTPUT_PATH,
-  result: DeduplicationResult
+  result: DeduplicationResult | readonly FingerprintedFinding[]
 ): Promise<string> {
   const resolved = path.resolve(outputPath);
   await mkdir(path.dirname(resolved), { recursive: true });
-  await writeFile(resolved, `${JSON.stringify(result, null, 2)}\n`, "utf8");
+  const uniqueFindings: readonly FingerprintedFinding[] = Array.isArray(result)
+    ? result
+    : (result as DeduplicationResult).uniqueFindings;
+  await writeFile(
+    resolved,
+    `${JSON.stringify(uniqueFindings, null, 2)}\n`,
+    "utf8"
+  );
   return outputPath;
 }
 
 export function writeDeduplicatedFindingsSync(
   outputPath: string = DEFAULT_DEDUPLICATED_OUTPUT_PATH,
-  result: DeduplicationResult
+  result: DeduplicationResult | readonly FingerprintedFinding[]
 ): string {
   const resolved = path.resolve(outputPath);
   mkdirSync(path.dirname(resolved), { recursive: true });
-  writeFileSync(resolved, `${JSON.stringify(result, null, 2)}\n`, "utf8");
+  const uniqueFindings: readonly FingerprintedFinding[] = Array.isArray(result)
+    ? result
+    : (result as DeduplicationResult).uniqueFindings;
+  writeFileSync(
+    resolved,
+    `${JSON.stringify(uniqueFindings, null, 2)}\n`,
+    "utf8"
+  );
   return outputPath;
 }

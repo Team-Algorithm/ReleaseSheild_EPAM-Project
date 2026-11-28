@@ -321,8 +321,8 @@ describe("Repository-scoped Deduplication (Phase 3)", () => {
 
       const parsedAsync = JSON.parse(readFileSync(asyncOutPath, "utf8"));
       const parsedSync = JSON.parse(readFileSync(syncOutPath, "utf8"));
-      expect(parsedAsync).toEqual(result);
-      expect(parsedSync).toEqual(result);
+      expect(parsedAsync).toEqual(result.uniqueFindings);
+      expect(parsedSync).toEqual(result.uniqueFindings);
     } finally {
       rmSync(baseDir, { recursive: true, force: true });
     }
@@ -415,13 +415,11 @@ describe("Repository-scoped Deduplication (Phase 3)", () => {
       expect(existsSync(dedupPath)).toBe(true);
 
       const dedupResult = JSON.parse(readFileSync(dedupPath, "utf8"));
-      expect(dedupResult.totalInput).toBe(2);
-      expect(dedupResult.duplicatesRemoved).toBe(1);
-      expect(dedupResult.uniqueFindings).toHaveLength(1);
-      expect(dedupResult.duplicateFindings).toHaveLength(1);
-      expect(dedupResult.issues).toHaveLength(1);
-      expect(dedupResult.issues[0].severity).toBe("high");
-      expect(dedupResult.issues[0].occurrences).toHaveLength(2);
+      expect(Array.isArray(dedupResult)).toBe(true);
+      expect(dedupResult).toHaveLength(1);
+      expect(dedupResult[0].repoId).toBe(path.basename(baseDir));
+      expect(dedupResult[0].ruleId).toBe("generic-api-key");
+      expect(dedupResult[0].severity).toBe("high");
     } finally {
       rmSync(baseDir, { recursive: true, force: true });
     }
@@ -540,12 +538,8 @@ describe("Repository-scoped Deduplication (Phase 3)", () => {
       );
 
       // Invariants: 3 raw inputs -> 2 unique issues (sql-injection x2 grouped, xss-injection x1 separate)
-      expect(dedupResult.totalInput).toBe(3);
-      expect(dedupResult.uniqueFindings).toHaveLength(2);
-      expect(dedupResult.duplicateFindings).toHaveLength(1);
-      expect(dedupResult.uniqueFindings.length + dedupResult.duplicateFindings.length).toBe(dedupResult.totalInput);
-      expect(dedupResult.issues).toHaveLength(2);
-      expect(dedupResult.duplicatesRemoved).toBe(1);
+      expect(Array.isArray(dedupResult)).toBe(true);
+      expect(dedupResult).toHaveLength(2);
       expect(summary.deduplication).toEqual({
         totalInput: 3,
         uniqueIssues: 2,
@@ -735,6 +729,76 @@ describe("Repository-scoped Deduplication (Phase 3)", () => {
     it("handles missing or empty paths gracefully", () => {
       expect(resolveScanRepoId("non-existent-subpath")).toBe("non-existent-subpath");
       expect(resolveScanRepoId("")).toBe("unknown-repo");
+    });
+  });
+
+  describe("Deduplicated Output Verification (128 findings -> 104 unique)", () => {
+    it("produces separate fingerprinted-findings.json (128) and deduplicated-findings.json (104 unique) without duplicating findings in the output", async () => {
+      const baseDir = mkdtempSync(path.join(tmpdir(), "rs-128-test-"));
+      const fpPath = path.join(baseDir, "fingerprinted-findings.json");
+      const dedupPath = path.join(baseDir, "deduplicated-findings.json");
+
+      try {
+        // Create 104 distinct finding templates
+        const uniqueTemplates: FingerprintedFinding[] = [];
+        for (let i = 0; i < 104; i++) {
+          uniqueTemplates.push(
+            makeFinding({
+              ruleId: `rule-${i}`,
+              title: `Vulnerability ${i}`,
+              normalizedTitle: `vulnerability-${i}`,
+              filePath: `src/file-${i}.ts`,
+              startLine: i + 1,
+              issueFingerprint: `fp-${i}`,
+            })
+          );
+        }
+
+        // Add 24 duplicates (matching the first 24 templates)
+        const duplicateItems: FingerprintedFinding[] = [];
+        for (let i = 0; i < 24; i++) {
+          duplicateItems.push({
+            ...uniqueTemplates[i],
+            scanner: "trivy",
+          });
+        }
+
+        const all128Findings = [...uniqueTemplates, ...duplicateItems];
+        expect(all128Findings).toHaveLength(128);
+
+        // 1. Write fingerprinted-findings.json (contains all 128)
+        await fs.writeFile(fpPath, JSON.stringify(all128Findings, null, 2), "utf8");
+
+        // 2. Run deduplication
+        const dedupResult = deduplicateWithStats(all128Findings);
+        expect(dedupResult.totalInput).toBe(128);
+        expect(dedupResult.uniqueFindings).toHaveLength(104);
+        expect(dedupResult.duplicatesRemoved).toBe(24);
+
+        // 3. Write deduplicated-findings.json
+        await writeDeduplicatedFindings(dedupPath, dedupResult);
+
+        // 4. Verify outputs
+        const readFp = JSON.parse(readFileSync(fpPath, "utf8"));
+        const readDedup = JSON.parse(readFileSync(dedupPath, "utf8"));
+
+        expect(Array.isArray(readFp)).toBe(true);
+        expect(readFp).toHaveLength(128);
+
+        expect(Array.isArray(readDedup)).toBe(true);
+        expect(readDedup).toHaveLength(104);
+
+        // Verify no duplicate repoId + issueFingerprint pairs exist in final file
+        const seenKeys = new Set<string>();
+        for (const f of readDedup) {
+          const key = `${f.repoId}::${f.issueFingerprint}`;
+          expect(seenKeys.has(key)).toBe(false);
+          seenKeys.add(key);
+        }
+        expect(seenKeys.size).toBe(104);
+      } finally {
+        rmSync(baseDir, { recursive: true, force: true });
+      }
     });
   });
 });

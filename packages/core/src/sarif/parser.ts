@@ -4,9 +4,21 @@ import type { SarifLog } from "../types.js";
 import { assertValidSarif, validateSarifDetailed, SarifValidationError } from "./validator.js";
 
 /**
- * Normalizes Windows-style backslashes in uri fields to forward slashes
- * as mandated by SARIF 2.1.0 (Section 3.10.1: URI references SHALL NOT contain backslashes).
+ * Normalizes Windows-style backslashes and spaces in uri fields
+ * as mandated by SARIF 2.1.0 (Section 3.10.1: URI references SHALL NOT contain backslashes or unencoded spaces).
  */
+function normalizeUriString(raw: string): string {
+  let uri = raw.replaceAll("\\", "/");
+  if (!uri.startsWith("file://") && /^[a-zA-Z]:\//.test(uri)) {
+    uri = `file:///${uri}`;
+  }
+  try {
+    return encodeURI(decodeURI(uri));
+  } catch {
+    return encodeURI(uri);
+  }
+}
+
 function normalizeUris(obj: unknown): void {
   if (!obj || typeof obj !== "object") return;
   if (Array.isArray(obj)) {
@@ -17,7 +29,7 @@ function normalizeUris(obj: unknown): void {
     const record = obj as Record<string, unknown>;
     for (const key of Object.keys(record)) {
       if (key === "uri" && typeof record[key] === "string") {
-        record[key] = (record[key] as string).replaceAll("\\", "/");
+        record[key] = normalizeUriString(record[key] as string);
       } else if (typeof record[key] === "object") {
         normalizeUris(record[key]);
       }

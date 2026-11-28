@@ -334,7 +334,7 @@ export async function runScan(
         );
 
         // Phase 3: Repository-scoped deduplication
-        const deduplicated = deduplicateWithStats(fingerprinted);
+        const deduplicated = deduplicateWithStats(safeOutput);
         await writeDeduplicatedFindings(deduplicatedOutputPath, deduplicated);
 
         deduplicationSummary = {

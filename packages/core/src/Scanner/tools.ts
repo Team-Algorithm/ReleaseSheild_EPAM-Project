@@ -156,12 +156,19 @@ export abstract class BaseToolRunner implements ToolRunner {
     // Ensure output directory exists
     await fs.mkdir(path.dirname(options.outputPath), { recursive: true });
 
+    const spawnArgs =
+      process.platform === "win32"
+        ? args.map((arg) =>
+            arg.includes(" ") && !arg.startsWith('"') ? `"${arg}"` : arg
+          )
+        : args;
+
     return new Promise<ToolRunOutput>((resolve) => {
       let procError: string | undefined;
       let timedOut = false;
       let timeoutId: NodeJS.Timeout | undefined;
 
-      const proc = this.spawnFn(this.executable, args, {
+      const proc = this.spawnFn(this.executable, spawnArgs, {
         shell: true,
         stdio: ["ignore", "pipe", "pipe"],
         env: getAugmentedEnv(),

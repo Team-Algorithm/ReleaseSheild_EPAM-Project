@@ -25,9 +25,13 @@ export function getAugmentedEnv(): NodeJS.ProcessEnv {
   };
 
   if (process.platform === "win32") {
-    const localAppData = process.env.LOCALAPPDATA || "";
-    const candidateDirs = [
-      path.join(localAppData, "Programs", "Python", "Python313", "Scripts"),
+    const localAppData =
+      process.env.LOCALAPPDATA ||
+      (process.env.USERPROFILE
+        ? path.join(process.env.USERPROFILE, "AppData", "Local")
+        : "");
+
+    const candidateDirs: string[] = [
       path.join(
         localAppData,
         "Microsoft",
@@ -45,12 +49,63 @@ export function getAugmentedEnv(): NodeJS.ProcessEnv {
       path.join(localAppData, "Microsoft", "WinGet", "Links"),
     ];
 
+    if (localAppData) {
+      // Dynamically discover all installed Python versions (e.g., Python312, Python313, etc.)
+      const pythonBase = path.join(localAppData, "Programs", "Python");
+      if (fsSync.existsSync(pythonBase)) {
+        try {
+          const entries = fsSync.readdirSync(pythonBase, { withFileTypes: true });
+          for (const entry of entries) {
+            if (entry.isDirectory()) {
+              candidateDirs.push(path.join(pythonBase, entry.name, "Scripts"));
+              candidateDirs.push(path.join(pythonBase, entry.name));
+            }
+          }
+        } catch {
+          // Ignore read errors
+        }
+      }
+
+      // Explicit fallbacks for standard Python versions
+      for (const ver of [
+        "Python314",
+        "Python313",
+        "Python312",
+        "Python311",
+        "Python310",
+        "Python39",
+      ]) {
+        candidateDirs.push(path.join(localAppData, "Programs", "Python", ver, "Scripts"));
+      }
+    }
+
+    const appData = process.env.APPDATA || "";
+    if (appData) {
+      const roamingPython = path.join(appData, "Python");
+      if (fsSync.existsSync(roamingPython)) {
+        try {
+          const entries = fsSync.readdirSync(roamingPython, { withFileTypes: true });
+          for (const entry of entries) {
+            if (entry.isDirectory()) {
+              candidateDirs.push(path.join(roamingPython, entry.name, "Scripts"));
+            }
+          }
+        } catch {
+          // Ignore read errors
+        }
+      }
+    }
+
     const pathKey =
       Object.keys(env).find((k) => k.toLowerCase() === "path") || "PATH";
     let currentPath = env[pathKey] || "";
 
     for (const candidate of candidateDirs) {
-      if (candidate && !currentPath.includes(candidate) && fsSync.existsSync(candidate)) {
+      if (
+        candidate &&
+        !currentPath.toLowerCase().includes(candidate.toLowerCase()) &&
+        fsSync.existsSync(candidate)
+      ) {
         currentPath = `${candidate};${currentPath}`;
       }
     }

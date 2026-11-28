@@ -1,0 +1,62 @@
+[
+  {
+    "repoId": "ReleaseSheild_EPAM-Project",
+    "scanner": "gitleaks",
+    "ruleId": "sourcegraph-access-token",
+    "title": "Sourcegraph is a code search and navigation engine.",
+    "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+    "severity": "high",
+    "filePath": "packages/core/results/normalized-findings.json",
+    "startLine": 14,
+    "endLine": 14,
+    "startColumn": 26,
+    "endColumn": 66,
+    "codeFingerprint": null,
+    "issueFingerprint": "23026cfd85faf253a2e427efba882f123c03e81a1487c5e698d61c841db5dbff"
+  },
+  {
+    "repoId": "ReleaseSheild_EPAM-Project",
+    "scanner": "gitleaks",
+    "ruleId": "generic-api-key",
+    "title": "Detected a Generic API Key, potentially exposing access to various services and sensitive operations.",
+    "normalizedTitle": "detected-a-generic-api-key-potentially-exposing-access-to-various-services-and-sensitive-operations",
+    "severity": "high",
+    "filePath": "cli_frontend/packages/core/src/findings.ts",
+    "startLine": 215,
+    "endLine": 215,
+    "startColumn": 32,
+    "endColumn": 74,
+    "codeFingerprint": null,
+    "issueFingerprint": "644bed957b1b8be274f60d41baad313379f51b37cacd8b24497f4a3781e6af93"
+  },
+  {
+    "repoId": "ReleaseSheild_EPAM-Project",
+    "scanner": "gitleaks",
+    "ruleId": "sourcegraph-access-token",
+    "title": "Sourcegraph is a code search and navigation engine.",
+    "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+    "severity": "high",
+    "filePath": "cli_frontend/results/gitleaks.sarif",
+    "startLine": 1372,
+    "endLine": 1372,
+    "startColumn": 22,
+    "endColumn": 62,
+    "codeFingerprint": null,
+    "issueFingerprint": "0401efc49959e2fc9acde62f70fb9dc759639dfecb4239fc7fc2aa5b415900d6"
+  },
+  {
+    "repoId": "ReleaseSheild_EPAM-Project",
+    "scanner": "gitleaks",
+    "ruleId": "sourcegraph-access-token",
+    "title": "Sourcegraph is a code search and navigation engine.",
+    "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+    "severity": "high",
+    "filePath": "cli_frontend/packages/core/test/fixtures/gitleaks-sample.sarif",
+    "startLine": 1372,
+    "endLine": 1372,
+    "startColumn": 22,
+    "endColumn": 62,
+    "codeFingerprint": null,
+    "issueFingerprint": "c666b375f980ead5d7dac9b9b51f57cb4109350c9b1afccd1890511010bf28e6"
+  }
+]

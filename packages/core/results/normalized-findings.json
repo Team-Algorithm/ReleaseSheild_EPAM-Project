@@ -1,0 +1,812 @@
+[
+  {
+    "repoId": "ReleaseSheild_EPAM-Project",
+    "scanner": "gitleaks",
+    "ruleId": "sourcegraph-access-token",
+    "title": "Sourcegraph is a code search and navigation engine.",
+    "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+    "severity": "high",
+    "filePath": "packages/core/results/normalized-findings.json",
+    "startLine": 14,
+    "endLine": 14,
+    "startColumn": 26,
+    "endColumn": 66,
+    "codeFingerprint": "0d0e521be75c29bf0429bc00b2d052515d047995",
+    "evidence": {
+      "message": "sourcegraph-access-token has detected secret for file packages/core/results/normalized-findings.json at commit 0d0e521be75c29bf0429bc00b2d052515d047995.",
+      "snippet": "11f43d24cc0cb3c88c13e099a67c904dc48d0018",
+      "driverName": "gitleaks",
+      "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+      "properties": {
+        "tags": []
+      },
+      "fingerprints": {
+        "commitSha": "0d0e521be75c29bf0429bc00b2d052515d047995",
+        "email": "tejalmishra1@gmail.com",
+        "author": "Tejal Mishra",
+        "date": "2026-11-28T03:24:22Z",
+        "commitMessage": "index on anurag/fingerprint: 91273d0 feat(core): integrate fingerprinting into scan pipeline"
+      }
+    }
+  },
+  {
+    "repoId": "ReleaseSheild_EPAM-Project",
+    "scanner": "gitleaks",
+    "ruleId": "sourcegraph-access-token",
+    "title": "Sourcegraph is a code search and navigation engine.",
+    "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+    "severity": "high",
+    "filePath": "packages/core/results/normalized-findings.json",
+    "startLine": 24,
+    "endLine": 24,
+    "startColumn": 24,
+    "endColumn": 64,
+    "codeFingerprint": "0d0e521be75c29bf0429bc00b2d052515d047995",
+    "evidence": {
+      "message": "sourcegraph-access-token has detected secret for file packages/core/results/normalized-findings.json at commit 0d0e521be75c29bf0429bc00b2d052515d047995.",
+      "snippet": "11f43d24cc0cb3c88c13e099a67c904dc48d0018",
+      "driverName": "gitleaks",
+      "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+      "properties": {
+        "tags": []
+      },
+      "fingerprints": {
+        "commitSha": "0d0e521be75c29bf0429bc00b2d052515d047995",
+        "email": "tejalmishra1@gmail.com",
+        "author": "Tejal Mishra",
+        "date": "2026-11-28T03:24:22Z",
+        "commitMessage": "index on anurag/fingerprint: 91273d0 feat(core): integrate fingerprinting into scan pipeline"
+      }
+    }
+  },
+  {
+    "repoId": "ReleaseSheild_EPAM-Project",
+    "scanner": "gitleaks",
+    "ruleId": "sourcegraph-access-token",
+    "title": "Sourcegraph is a code search and navigation engine.",
+    "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+    "severity": "high",
+    "filePath": "packages/core/results/normalized-findings.json",
+    "startLine": 44,
+    "endLine": 44,
+    "startColumn": 26,
+    "endColumn": 66,
+    "codeFingerprint": "0d0e521be75c29bf0429bc00b2d052515d047995",
+    "evidence": {
+      "message": "sourcegraph-access-token has detected secret for file packages/core/results/normalized-findings.json at commit 0d0e521be75c29bf0429bc00b2d052515d047995.",
+      "snippet": "242b084c5d4e1ec44effbff885375380565239e1",
+      "driverName": "gitleaks",
+      "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+      "properties": {
+        "tags": []
+      },
+      "fingerprints": {
+        "commitSha": "0d0e521be75c29bf0429bc00b2d052515d047995",
+        "email": "tejalmishra1@gmail.com",
+        "author": "Tejal Mishra",
+        "date": "2026-11-28T03:24:22Z",
+        "commitMessage": "index on anurag/fingerprint: 91273d0 feat(core): integrate fingerprinting into scan pipeline"
+      }
+    }
+  },
+  {
+    "repoId": "ReleaseSheild_EPAM-Project",
+    "scanner": "gitleaks",
+    "ruleId": "sourcegraph-access-token",
+    "title": "Sourcegraph is a code search and navigation engine.",
+    "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+    "severity": "high",
+    "filePath": "packages/core/results/normalized-findings.json",
+    "startLine": 47,
+    "endLine": 47,
+    "startColumn": 20,
+    "endColumn": 60,
+    "codeFingerprint": "0d0e521be75c29bf0429bc00b2d052515d047995",
+    "evidence": {
+      "message": "sourcegraph-access-token has detected secret for file packages/core/results/normalized-findings.json at commit 0d0e521be75c29bf0429bc00b2d052515d047995.",
+      "snippet": "2ac5e2fa367cf6c8e5a4b55f9f2d71a9d45fca01",
+      "driverName": "gitleaks",
+      "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+      "properties": {
+        "tags": []
+      },
+      "fingerprints": {
+        "commitSha": "0d0e521be75c29bf0429bc00b2d052515d047995",
+        "email": "tejalmishra1@gmail.com",
+        "author": "Tejal Mishra",
+        "date": "2026-11-28T03:24:22Z",
+        "commitMessage": "index on anurag/fingerprint: 91273d0 feat(core): integrate fingerprinting into scan pipeline"
+      }
+    }
+  },
+  {
+    "repoId": "ReleaseSheild_EPAM-Project",
+    "scanner": "gitleaks",
+    "ruleId": "sourcegraph-access-token",
+    "title": "Sourcegraph is a code search and navigation engine.",
+    "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+    "severity": "high",
+    "filePath": "packages/core/results/normalized-findings.json",
+    "startLine": 54,
+    "endLine": 54,
+    "startColumn": 24,
+    "endColumn": 64,
+    "codeFingerprint": "0d0e521be75c29bf0429bc00b2d052515d047995",
+    "evidence": {
+      "message": "sourcegraph-access-token has detected secret for file packages/core/results/normalized-findings.json at commit 0d0e521be75c29bf0429bc00b2d052515d047995.",
+      "snippet": "242b084c5d4e1ec44effbff885375380565239e1",
+      "driverName": "gitleaks",
+      "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+      "properties": {
+        "tags": []
+      },
+      "fingerprints": {
+        "commitSha": "0d0e521be75c29bf0429bc00b2d052515d047995",
+        "email": "tejalmishra1@gmail.com",
+        "author": "Tejal Mishra",
+        "date": "2026-11-28T03:24:22Z",
+        "commitMessage": "index on anurag/fingerprint: 91273d0 feat(core): integrate fingerprinting into scan pipeline"
+      }
+    }
+  },
+  {
+    "repoId": "ReleaseSheild_EPAM-Project",
+    "scanner": "gitleaks",
+    "ruleId": "sourcegraph-access-token",
+    "title": "Sourcegraph is a code search and navigation engine.",
+    "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+    "severity": "high",
+    "filePath": "packages/core/results/normalized-findings.json",
+    "startLine": 74,
+    "endLine": 74,
+    "startColumn": 26,
+    "endColumn": 66,
+    "codeFingerprint": "0d0e521be75c29bf0429bc00b2d052515d047995",
+    "evidence": {
+      "message": "sourcegraph-access-token has detected secret for file packages/core/results/normalized-findings.json at commit 0d0e521be75c29bf0429bc00b2d052515d047995.",
+      "snippet": "242b084c5d4e1ec44effbff885375380565239e1",
+      "driverName": "gitleaks",
+      "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+      "properties": {
+        "tags": []
+      },
+      "fingerprints": {
+        "commitSha": "0d0e521be75c29bf0429bc00b2d052515d047995",
+        "email": "tejalmishra1@gmail.com",
+        "author": "Tejal Mishra",
+        "date": "2026-11-28T03:24:22Z",
+        "commitMessage": "index on anurag/fingerprint: 91273d0 feat(core): integrate fingerprinting into scan pipeline"
+      }
+    }
+  },
+  {
+    "repoId": "ReleaseSheild_EPAM-Project",
+    "scanner": "gitleaks",
+    "ruleId": "sourcegraph-access-token",
+    "title": "Sourcegraph is a code search and navigation engine.",
+    "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+    "severity": "high",
+    "filePath": "packages/core/results/normalized-findings.json",
+    "startLine": 77,
+    "endLine": 77,
+    "startColumn": 20,
+    "endColumn": 60,
+    "codeFingerprint": "0d0e521be75c29bf0429bc00b2d052515d047995",
+    "evidence": {
+      "message": "sourcegraph-access-token has detected secret for file packages/core/results/normalized-findings.json at commit 0d0e521be75c29bf0429bc00b2d052515d047995.",
+      "snippet": "2ac5e2fa367cf6c8e5a4b55f9f2d71a9d45fca01",
+      "driverName": "gitleaks",
+      "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+      "properties": {
+        "tags": []
+      },
+      "fingerprints": {
+        "commitSha": "0d0e521be75c29bf0429bc00b2d052515d047995",
+        "email": "tejalmishra1@gmail.com",
+        "author": "Tejal Mishra",
+        "date": "2026-11-28T03:24:22Z",
+        "commitMessage": "index on anurag/fingerprint: 91273d0 feat(core): integrate fingerprinting into scan pipeline"
+      }
+    }
+  },
+  {
+    "repoId": "ReleaseSheild_EPAM-Project",
+    "scanner": "gitleaks",
+    "ruleId": "sourcegraph-access-token",
+    "title": "Sourcegraph is a code search and navigation engine.",
+    "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+    "severity": "high",
+    "filePath": "packages/core/results/normalized-findings.json",
+    "startLine": 84,
+    "endLine": 84,
+    "startColumn": 24,
+    "endColumn": 64,
+    "codeFingerprint": "0d0e521be75c29bf0429bc00b2d052515d047995",
+    "evidence": {
+      "message": "sourcegraph-access-token has detected secret for file packages/core/results/normalized-findings.json at commit 0d0e521be75c29bf0429bc00b2d052515d047995.",
+      "snippet": "242b084c5d4e1ec44effbff885375380565239e1",
+      "driverName": "gitleaks",
+      "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+      "properties": {
+        "tags": []
+      },
+      "fingerprints": {
+        "commitSha": "0d0e521be75c29bf0429bc00b2d052515d047995",
+        "email": "tejalmishra1@gmail.com",
+        "author": "Tejal Mishra",
+        "date": "2026-11-28T03:24:22Z",
+        "commitMessage": "index on anurag/fingerprint: 91273d0 feat(core): integrate fingerprinting into scan pipeline"
+      }
+    }
+  },
+  {
+    "repoId": "ReleaseSheild_EPAM-Project",
+    "scanner": "gitleaks",
+    "ruleId": "sourcegraph-access-token",
+    "title": "Sourcegraph is a code search and navigation engine.",
+    "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+    "severity": "high",
+    "filePath": "packages/core/results/normalized-findings.json",
+    "startLine": 104,
+    "endLine": 104,
+    "startColumn": 26,
+    "endColumn": 66,
+    "codeFingerprint": "0d0e521be75c29bf0429bc00b2d052515d047995",
+    "evidence": {
+      "message": "sourcegraph-access-token has detected secret for file packages/core/results/normalized-findings.json at commit 0d0e521be75c29bf0429bc00b2d052515d047995.",
+      "snippet": "242b084c5d4e1ec44effbff885375380565239e1",
+      "driverName": "gitleaks",
+      "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+      "properties": {
+        "tags": []
+      },
+      "fingerprints": {
+        "commitSha": "0d0e521be75c29bf0429bc00b2d052515d047995",
+        "email": "tejalmishra1@gmail.com",
+        "author": "Tejal Mishra",
+        "date": "2026-11-28T03:24:22Z",
+        "commitMessage": "index on anurag/fingerprint: 91273d0 feat(core): integrate fingerprinting into scan pipeline"
+      }
+    }
+  },
+  {
+    "repoId": "ReleaseSheild_EPAM-Project",
+    "scanner": "gitleaks",
+    "ruleId": "sourcegraph-access-token",
+    "title": "Sourcegraph is a code search and navigation engine.",
+    "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+    "severity": "high",
+    "filePath": "packages/core/results/normalized-findings.json",
+    "startLine": 107,
+    "endLine": 107,
+    "startColumn": 20,
+    "endColumn": 60,
+    "codeFingerprint": "0d0e521be75c29bf0429bc00b2d052515d047995",
+    "evidence": {
+      "message": "sourcegraph-access-token has detected secret for file packages/core/results/normalized-findings.json at commit 0d0e521be75c29bf0429bc00b2d052515d047995.",
+      "snippet": "11f43d24cc0cb3c88c13e099a67c904dc48d0018",
+      "driverName": "gitleaks",
+      "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+      "properties": {
+        "tags": []
+      },
+      "fingerprints": {
+        "commitSha": "0d0e521be75c29bf0429bc00b2d052515d047995",
+        "email": "tejalmishra1@gmail.com",
+        "author": "Tejal Mishra",
+        "date": "2026-11-28T03:24:22Z",
+        "commitMessage": "index on anurag/fingerprint: 91273d0 feat(core): integrate fingerprinting into scan pipeline"
+      }
+    }
+  },
+  {
+    "repoId": "ReleaseSheild_EPAM-Project",
+    "scanner": "gitleaks",
+    "ruleId": "sourcegraph-access-token",
+    "title": "Sourcegraph is a code search and navigation engine.",
+    "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+    "severity": "high",
+    "filePath": "packages/core/results/normalized-findings.json",
+    "startLine": 114,
+    "endLine": 114,
+    "startColumn": 24,
+    "endColumn": 64,
+    "codeFingerprint": "0d0e521be75c29bf0429bc00b2d052515d047995",
+    "evidence": {
+      "message": "sourcegraph-access-token has detected secret for file packages/core/results/normalized-findings.json at commit 0d0e521be75c29bf0429bc00b2d052515d047995.",
+      "snippet": "242b084c5d4e1ec44effbff885375380565239e1",
+      "driverName": "gitleaks",
+      "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+      "properties": {
+        "tags": []
+      },
+      "fingerprints": {
+        "commitSha": "0d0e521be75c29bf0429bc00b2d052515d047995",
+        "email": "tejalmishra1@gmail.com",
+        "author": "Tejal Mishra",
+        "date": "2026-11-28T03:24:22Z",
+        "commitMessage": "index on anurag/fingerprint: 91273d0 feat(core): integrate fingerprinting into scan pipeline"
+      }
+    }
+  },
+  {
+    "repoId": "ReleaseSheild_EPAM-Project",
+    "scanner": "gitleaks",
+    "ruleId": "sourcegraph-access-token",
+    "title": "Sourcegraph is a code search and navigation engine.",
+    "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+    "severity": "high",
+    "filePath": "packages/core/results/normalized-findings.json",
+    "startLine": 134,
+    "endLine": 134,
+    "startColumn": 26,
+    "endColumn": 66,
+    "codeFingerprint": "0d0e521be75c29bf0429bc00b2d052515d047995",
+    "evidence": {
+      "message": "sourcegraph-access-token has detected secret for file packages/core/results/normalized-findings.json at commit 0d0e521be75c29bf0429bc00b2d052515d047995.",
+      "snippet": "be536735673d23b518a4b935d78a76f59bde46e7",
+      "driverName": "gitleaks",
+      "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+      "properties": {
+        "tags": []
+      },
+      "fingerprints": {
+        "commitSha": "0d0e521be75c29bf0429bc00b2d052515d047995",
+        "email": "tejalmishra1@gmail.com",
+        "author": "Tejal Mishra",
+        "date": "2026-11-28T03:24:22Z",
+        "commitMessage": "index on anurag/fingerprint: 91273d0 feat(core): integrate fingerprinting into scan pipeline"
+      }
+    }
+  },
+  {
+    "repoId": "ReleaseSheild_EPAM-Project",
+    "scanner": "gitleaks",
+    "ruleId": "sourcegraph-access-token",
+    "title": "Sourcegraph is a code search and navigation engine.",
+    "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+    "severity": "high",
+    "filePath": "packages/core/results/normalized-findings.json",
+    "startLine": 137,
+    "endLine": 137,
+    "startColumn": 20,
+    "endColumn": 60,
+    "codeFingerprint": "0d0e521be75c29bf0429bc00b2d052515d047995",
+    "evidence": {
+      "message": "sourcegraph-access-token has detected secret for file packages/core/results/normalized-findings.json at commit 0d0e521be75c29bf0429bc00b2d052515d047995.",
+      "snippet": "2ac5e2fa367cf6c8e5a4b55f9f2d71a9d45fca01",
+      "driverName": "gitleaks",
+      "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+      "properties": {
+        "tags": []
+      },
+      "fingerprints": {
+        "commitSha": "0d0e521be75c29bf0429bc00b2d052515d047995",
+        "email": "tejalmishra1@gmail.com",
+        "author": "Tejal Mishra",
+        "date": "2026-11-28T03:24:22Z",
+        "commitMessage": "index on anurag/fingerprint: 91273d0 feat(core): integrate fingerprinting into scan pipeline"
+      }
+    }
+  },
+  {
+    "repoId": "ReleaseSheild_EPAM-Project",
+    "scanner": "gitleaks",
+    "ruleId": "sourcegraph-access-token",
+    "title": "Sourcegraph is a code search and navigation engine.",
+    "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+    "severity": "high",
+    "filePath": "packages/core/results/normalized-findings.json",
+    "startLine": 144,
+    "endLine": 144,
+    "startColumn": 24,
+    "endColumn": 64,
+    "codeFingerprint": "0d0e521be75c29bf0429bc00b2d052515d047995",
+    "evidence": {
+      "message": "sourcegraph-access-token has detected secret for file packages/core/results/normalized-findings.json at commit 0d0e521be75c29bf0429bc00b2d052515d047995.",
+      "snippet": "be536735673d23b518a4b935d78a76f59bde46e7",
+      "driverName": "gitleaks",
+      "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+      "properties": {
+        "tags": []
+      },
+      "fingerprints": {
+        "commitSha": "0d0e521be75c29bf0429bc00b2d052515d047995",
+        "email": "tejalmishra1@gmail.com",
+        "author": "Tejal Mishra",
+        "date": "2026-11-28T03:24:22Z",
+        "commitMessage": "index on anurag/fingerprint: 91273d0 feat(core): integrate fingerprinting into scan pipeline"
+      }
+    }
+  },
+  {
+    "repoId": "ReleaseSheild_EPAM-Project",
+    "scanner": "gitleaks",
+    "ruleId": "sourcegraph-access-token",
+    "title": "Sourcegraph is a code search and navigation engine.",
+    "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+    "severity": "high",
+    "filePath": "packages/core/results/normalized-findings.json",
+    "startLine": 164,
+    "endLine": 164,
+    "startColumn": 26,
+    "endColumn": 66,
+    "codeFingerprint": "0d0e521be75c29bf0429bc00b2d052515d047995",
+    "evidence": {
+      "message": "sourcegraph-access-token has detected secret for file packages/core/results/normalized-findings.json at commit 0d0e521be75c29bf0429bc00b2d052515d047995.",
+      "snippet": "be536735673d23b518a4b935d78a76f59bde46e7",
+      "driverName": "gitleaks",
+      "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+      "properties": {
+        "tags": []
+      },
+      "fingerprints": {
+        "commitSha": "0d0e521be75c29bf0429bc00b2d052515d047995",
+        "email": "tejalmishra1@gmail.com",
+        "author": "Tejal Mishra",
+        "date": "2026-11-28T03:24:22Z",
+        "commitMessage": "index on anurag/fingerprint: 91273d0 feat(core): integrate fingerprinting into scan pipeline"
+      }
+    }
+  },
+  {
+    "repoId": "ReleaseSheild_EPAM-Project",
+    "scanner": "gitleaks",
+    "ruleId": "sourcegraph-access-token",
+    "title": "Sourcegraph is a code search and navigation engine.",
+    "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+    "severity": "high",
+    "filePath": "packages/core/results/normalized-findings.json",
+    "startLine": 167,
+    "endLine": 167,
+    "startColumn": 20,
+    "endColumn": 60,
+    "codeFingerprint": "0d0e521be75c29bf0429bc00b2d052515d047995",
+    "evidence": {
+      "message": "sourcegraph-access-token has detected secret for file packages/core/results/normalized-findings.json at commit 0d0e521be75c29bf0429bc00b2d052515d047995.",
+      "snippet": "2ac5e2fa367cf6c8e5a4b55f9f2d71a9d45fca01",
+      "driverName": "gitleaks",
+      "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+      "properties": {
+        "tags": []
+      },
+      "fingerprints": {
+        "commitSha": "0d0e521be75c29bf0429bc00b2d052515d047995",
+        "email": "tejalmishra1@gmail.com",
+        "author": "Tejal Mishra",
+        "date": "2026-11-28T03:24:22Z",
+        "commitMessage": "index on anurag/fingerprint: 91273d0 feat(core): integrate fingerprinting into scan pipeline"
+      }
+    }
+  },
+  {
+    "repoId": "ReleaseSheild_EPAM-Project",
+    "scanner": "gitleaks",
+    "ruleId": "sourcegraph-access-token",
+    "title": "Sourcegraph is a code search and navigation engine.",
+    "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+    "severity": "high",
+    "filePath": "packages/core/results/normalized-findings.json",
+    "startLine": 174,
+    "endLine": 174,
+    "startColumn": 24,
+    "endColumn": 64,
+    "codeFingerprint": "0d0e521be75c29bf0429bc00b2d052515d047995",
+    "evidence": {
+      "message": "sourcegraph-access-token has detected secret for file packages/core/results/normalized-findings.json at commit 0d0e521be75c29bf0429bc00b2d052515d047995.",
+      "snippet": "be536735673d23b518a4b935d78a76f59bde46e7",
+      "driverName": "gitleaks",
+      "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+      "properties": {
+        "tags": []
+      },
+      "fingerprints": {
+        "commitSha": "0d0e521be75c29bf0429bc00b2d052515d047995",
+        "email": "tejalmishra1@gmail.com",
+        "author": "Tejal Mishra",
+        "date": "2026-11-28T03:24:22Z",
+        "commitMessage": "index on anurag/fingerprint: 91273d0 feat(core): integrate fingerprinting into scan pipeline"
+      }
+    }
+  },
+  {
+    "repoId": "ReleaseSheild_EPAM-Project",
+    "scanner": "gitleaks",
+    "ruleId": "sourcegraph-access-token",
+    "title": "Sourcegraph is a code search and navigation engine.",
+    "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+    "severity": "high",
+    "filePath": "packages/core/results/normalized-findings.json",
+    "startLine": 194,
+    "endLine": 194,
+    "startColumn": 26,
+    "endColumn": 66,
+    "codeFingerprint": "0d0e521be75c29bf0429bc00b2d052515d047995",
+    "evidence": {
+      "message": "sourcegraph-access-token has detected secret for file packages/core/results/normalized-findings.json at commit 0d0e521be75c29bf0429bc00b2d052515d047995.",
+      "snippet": "be536735673d23b518a4b935d78a76f59bde46e7",
+      "driverName": "gitleaks",
+      "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+      "properties": {
+        "tags": []
+      },
+      "fingerprints": {
+        "commitSha": "0d0e521be75c29bf0429bc00b2d052515d047995",
+        "email": "tejalmishra1@gmail.com",
+        "author": "Tejal Mishra",
+        "date": "2026-11-28T03:24:22Z",
+        "commitMessage": "index on anurag/fingerprint: 91273d0 feat(core): integrate fingerprinting into scan pipeline"
+      }
+    }
+  },
+  {
+    "repoId": "ReleaseSheild_EPAM-Project",
+    "scanner": "gitleaks",
+    "ruleId": "sourcegraph-access-token",
+    "title": "Sourcegraph is a code search and navigation engine.",
+    "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+    "severity": "high",
+    "filePath": "packages/core/results/normalized-findings.json",
+    "startLine": 197,
+    "endLine": 197,
+    "startColumn": 20,
+    "endColumn": 60,
+    "codeFingerprint": "0d0e521be75c29bf0429bc00b2d052515d047995",
+    "evidence": {
+      "message": "sourcegraph-access-token has detected secret for file packages/core/results/normalized-findings.json at commit 0d0e521be75c29bf0429bc00b2d052515d047995.",
+      "snippet": "11f43d24cc0cb3c88c13e099a67c904dc48d0018",
+      "driverName": "gitleaks",
+      "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+      "properties": {
+        "tags": []
+      },
+      "fingerprints": {
+        "commitSha": "0d0e521be75c29bf0429bc00b2d052515d047995",
+        "email": "tejalmishra1@gmail.com",
+        "author": "Tejal Mishra",
+        "date": "2026-11-28T03:24:22Z",
+        "commitMessage": "index on anurag/fingerprint: 91273d0 feat(core): integrate fingerprinting into scan pipeline"
+      }
+    }
+  },
+  {
+    "repoId": "ReleaseSheild_EPAM-Project",
+    "scanner": "gitleaks",
+    "ruleId": "sourcegraph-access-token",
+    "title": "Sourcegraph is a code search and navigation engine.",
+    "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+    "severity": "high",
+    "filePath": "packages/core/results/normalized-findings.json",
+    "startLine": 204,
+    "endLine": 204,
+    "startColumn": 24,
+    "endColumn": 64,
+    "codeFingerprint": "0d0e521be75c29bf0429bc00b2d052515d047995",
+    "evidence": {
+      "message": "sourcegraph-access-token has detected secret for file packages/core/results/normalized-findings.json at commit 0d0e521be75c29bf0429bc00b2d052515d047995.",
+      "snippet": "be536735673d23b518a4b935d78a76f59bde46e7",
+      "driverName": "gitleaks",
+      "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+      "properties": {
+        "tags": []
+      },
+      "fingerprints": {
+        "commitSha": "0d0e521be75c29bf0429bc00b2d052515d047995",
+        "email": "tejalmishra1@gmail.com",
+        "author": "Tejal Mishra",
+        "date": "2026-11-28T03:24:22Z",
+        "commitMessage": "index on anurag/fingerprint: 91273d0 feat(core): integrate fingerprinting into scan pipeline"
+      }
+    }
+  },
+  {
+    "repoId": "ReleaseSheild_EPAM-Project",
+    "scanner": "gitleaks",
+    "ruleId": "generic-api-key",
+    "title": "Detected a Generic API Key, potentially exposing access to various services and sensitive operations.",
+    "normalizedTitle": "detected-a-generic-api-key-potentially-exposing-access-to-various-services-and-sensitive-operations",
+    "severity": "high",
+    "filePath": "cli_frontend/packages/core/src/findings.ts",
+    "startLine": 215,
+    "endLine": 215,
+    "startColumn": 32,
+    "endColumn": 74,
+    "codeFingerprint": "11f43d24cc0cb3c88c13e099a67c904dc48d0018",
+    "evidence": {
+      "message": "generic-api-key has detected secret for file cli_frontend/packages/core/src/findings.ts at commit 11f43d24cc0cb3c88c13e099a67c904dc48d0018.",
+      "snippet": "ghp_abc1234567890def",
+      "driverName": "gitleaks",
+      "normalizedTitle": "detected-a-generic-api-key-potentially-exposing-access-to-various-services-and-sensitive-operations",
+      "properties": {
+        "tags": []
+      },
+      "fingerprints": {
+        "commitSha": "11f43d24cc0cb3c88c13e099a67c904dc48d0018",
+        "email": "tejalmishra1@gmail.com",
+        "author": "Tejal Mishra",
+        "date": "2026-10-23T18:14:44Z",
+        "commitMessage": "feat(core): add fake scan engine"
+      }
+    }
+  },
+  {
+    "repoId": "ReleaseSheild_EPAM-Project",
+    "scanner": "gitleaks",
+    "ruleId": "sourcegraph-access-token",
+    "title": "Sourcegraph is a code search and navigation engine.",
+    "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+    "severity": "high",
+    "filePath": "cli_frontend/results/gitleaks.sarif",
+    "startLine": 1372,
+    "endLine": 1372,
+    "startColumn": 22,
+    "endColumn": 62,
+    "codeFingerprint": "242b084c5d4e1ec44effbff885375380565239e1",
+    "evidence": {
+      "message": "sourcegraph-access-token has detected secret for file cli_frontend/results/gitleaks.sarif at commit 242b084c5d4e1ec44effbff885375380565239e1.",
+      "snippet": "2ac5e2fa367cf6c8e5a4b55f9f2d71a9d45fca01",
+      "driverName": "gitleaks",
+      "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+      "properties": {
+        "tags": []
+      },
+      "fingerprints": {
+        "commitSha": "242b084c5d4e1ec44effbff885375380565239e1",
+        "email": "your-email@example.com",
+        "author": "Adarsh-Choubey",
+        "date": "2026-10-29T08:13:00Z",
+        "commitMessage": "files removed"
+      }
+    }
+  },
+  {
+    "repoId": "ReleaseSheild_EPAM-Project",
+    "scanner": "gitleaks",
+    "ruleId": "sourcegraph-access-token",
+    "title": "Sourcegraph is a code search and navigation engine.",
+    "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+    "severity": "high",
+    "filePath": "cli_frontend/results/gitleaks.sarif",
+    "startLine": 1406,
+    "endLine": 1406,
+    "startColumn": 22,
+    "endColumn": 62,
+    "codeFingerprint": "242b084c5d4e1ec44effbff885375380565239e1",
+    "evidence": {
+      "message": "sourcegraph-access-token has detected secret for file cli_frontend/results/gitleaks.sarif at commit 242b084c5d4e1ec44effbff885375380565239e1.",
+      "snippet": "2ac5e2fa367cf6c8e5a4b55f9f2d71a9d45fca01",
+      "driverName": "gitleaks",
+      "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+      "properties": {
+        "tags": []
+      },
+      "fingerprints": {
+        "commitSha": "242b084c5d4e1ec44effbff885375380565239e1",
+        "email": "your-email@example.com",
+        "author": "Adarsh-Choubey",
+        "date": "2026-10-29T08:13:00Z",
+        "commitMessage": "files removed"
+      }
+    }
+  },
+  {
+    "repoId": "ReleaseSheild_EPAM-Project",
+    "scanner": "gitleaks",
+    "ruleId": "sourcegraph-access-token",
+    "title": "Sourcegraph is a code search and navigation engine.",
+    "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+    "severity": "high",
+    "filePath": "cli_frontend/results/gitleaks.sarif",
+    "startLine": 1440,
+    "endLine": 1440,
+    "startColumn": 22,
+    "endColumn": 62,
+    "codeFingerprint": "242b084c5d4e1ec44effbff885375380565239e1",
+    "evidence": {
+      "message": "sourcegraph-access-token has detected secret for file cli_frontend/results/gitleaks.sarif at commit 242b084c5d4e1ec44effbff885375380565239e1.",
+      "snippet": "11f43d24cc0cb3c88c13e099a67c904dc48d0018",
+      "driverName": "gitleaks",
+      "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+      "properties": {
+        "tags": []
+      },
+      "fingerprints": {
+        "commitSha": "242b084c5d4e1ec44effbff885375380565239e1",
+        "email": "your-email@example.com",
+        "author": "Adarsh-Choubey",
+        "date": "2026-10-29T08:13:00Z",
+        "commitMessage": "files removed"
+      }
+    }
+  },
+  {
+    "repoId": "ReleaseSheild_EPAM-Project",
+    "scanner": "gitleaks",
+    "ruleId": "sourcegraph-access-token",
+    "title": "Sourcegraph is a code search and navigation engine.",
+    "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+    "severity": "high",
+    "filePath": "cli_frontend/packages/core/test/fixtures/gitleaks-sample.sarif",
+    "startLine": 1372,
+    "endLine": 1372,
+    "startColumn": 22,
+    "endColumn": 62,
+    "codeFingerprint": "be536735673d23b518a4b935d78a76f59bde46e7",
+    "evidence": {
+      "message": "sourcegraph-access-token has detected secret for file cli_frontend/packages/core/test/fixtures/gitleaks-sample.sarif at commit be536735673d23b518a4b935d78a76f59bde46e7.",
+      "snippet": "2ac5e2fa367cf6c8e5a4b55f9f2d71a9d45fca01",
+      "driverName": "gitleaks",
+      "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+      "properties": {
+        "tags": []
+      },
+      "fingerprints": {
+        "commitSha": "be536735673d23b518a4b935d78a76f59bde46e7",
+        "email": "tejalmishra1@gmail.com",
+        "author": "Tejal Mishra",
+        "date": "2026-10-29T16:44:19Z",
+        "commitMessage": "feat: implement resilient SARIF 2.1.0 processing pipeline and scanner coordinator (Steps 1-7)\n\n- Added official OASIS SARIF 2.1.0 schema and Draft-04 validator (validator.ts)\n- Refactored monolithic sarif.ts into modular pipeline (parser, findings, merger, validator)\n- Added atomic SARIF report publication with pre-write schema validation\n- Implemented robust scanner execution in tools.ts (timeouts, process kill, stale report cleanup, diagnostics)\n- Integrated concurrent scan coordinator in scan.ts with error isolation, failure handling, and custom output path support\n- Handled empty and custom report paths safely across interactive and non-interactive CLI modes\n- Configured report directories and gitignore policies for results\n- Added comprehensive unit tests (85 tests passing across 12 test files)"
+      }
+    }
+  },
+  {
+    "repoId": "ReleaseSheild_EPAM-Project",
+    "scanner": "gitleaks",
+    "ruleId": "sourcegraph-access-token",
+    "title": "Sourcegraph is a code search and navigation engine.",
+    "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+    "severity": "high",
+    "filePath": "cli_frontend/packages/core/test/fixtures/gitleaks-sample.sarif",
+    "startLine": 1406,
+    "endLine": 1406,
+    "startColumn": 22,
+    "endColumn": 62,
+    "codeFingerprint": "be536735673d23b518a4b935d78a76f59bde46e7",
+    "evidence": {
+      "message": "sourcegraph-access-token has detected secret for file cli_frontend/packages/core/test/fixtures/gitleaks-sample.sarif at commit be536735673d23b518a4b935d78a76f59bde46e7.",
+      "snippet": "2ac5e2fa367cf6c8e5a4b55f9f2d71a9d45fca01",
+      "driverName": "gitleaks",
+      "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+      "properties": {
+        "tags": []
+      },
+      "fingerprints": {
+        "commitSha": "be536735673d23b518a4b935d78a76f59bde46e7",
+        "email": "tejalmishra1@gmail.com",
+        "author": "Tejal Mishra",
+        "date": "2026-10-29T16:44:19Z",
+        "commitMessage": "feat: implement resilient SARIF 2.1.0 processing pipeline and scanner coordinator (Steps 1-7)\n\n- Added official OASIS SARIF 2.1.0 schema and Draft-04 validator (validator.ts)\n- Refactored monolithic sarif.ts into modular pipeline (parser, findings, merger, validator)\n- Added atomic SARIF report publication with pre-write schema validation\n- Implemented robust scanner execution in tools.ts (timeouts, process kill, stale report cleanup, diagnostics)\n- Integrated concurrent scan coordinator in scan.ts with error isolation, failure handling, and custom output path support\n- Handled empty and custom report paths safely across interactive and non-interactive CLI modes\n- Configured report directories and gitignore policies for results\n- Added comprehensive unit tests (85 tests passing across 12 test files)"
+      }
+    }
+  },
+  {
+    "repoId": "ReleaseSheild_EPAM-Project",
+    "scanner": "gitleaks",
+    "ruleId": "sourcegraph-access-token",
+    "title": "Sourcegraph is a code search and navigation engine.",
+    "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+    "severity": "high",
+    "filePath": "cli_frontend/packages/core/test/fixtures/gitleaks-sample.sarif",
+    "startLine": 1440,
+    "endLine": 1440,
+    "startColumn": 22,
+    "endColumn": 62,
+    "codeFingerprint": "be536735673d23b518a4b935d78a76f59bde46e7",
+    "evidence": {
+      "message": "sourcegraph-access-token has detected secret for file cli_frontend/packages/core/test/fixtures/gitleaks-sample.sarif at commit be536735673d23b518a4b935d78a76f59bde46e7.",
+      "snippet": "11f43d24cc0cb3c88c13e099a67c904dc48d0018",
+      "driverName": "gitleaks",
+      "normalizedTitle": "sourcegraph-is-a-code-search-and-navigation-engine",
+      "properties": {
+        "tags": []
+      },
+      "fingerprints": {
+        "commitSha": "be536735673d23b518a4b935d78a76f59bde46e7",
+        "email": "tejalmishra1@gmail.com",
+        "author": "Tejal Mishra",
+        "date": "2026-10-29T16:44:19Z",
+        "commitMessage": "feat: implement resilient SARIF 2.1.0 processing pipeline and scanner coordinator (Steps 1-7)\n\n- Added official OASIS SARIF 2.1.0 schema and Draft-04 validator (validator.ts)\n- Refactored monolithic sarif.ts into modular pipeline (parser, findings, merger, validator)\n- Added atomic SARIF report publication with pre-write schema validation\n- Implemented robust scanner execution in tools.ts (timeouts, process kill, stale report cleanup, diagnostics)\n- Integrated concurrent scan coordinator in scan.ts with error isolation, failure handling, and custom output path support\n- Handled empty and custom report paths safely across interactive and non-interactive CLI modes\n- Configured report directories and gitignore policies for results\n- Added comprehensive unit tests (85 tests passing across 12 test files)"
+      }
+    }
+  }
+]
